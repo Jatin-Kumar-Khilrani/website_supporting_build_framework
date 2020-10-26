@@ -1,0 +1,34 @@
+/root/portal/src
+Performing system checks...
+
+System check identified no issues (0 silenced).
+February 14, 2018 - 09:31:33
+Django version 1.11.5, using settings 'website.settings'
+Starting development server at http://0.0.0.0:8080/
+Quit the server with CONTROL-C.
+/root/portal/src
+[14/Feb/2018 09:38:34] "GET / HTTP/1.1" 302 0
+[14/Feb/2018 09:38:34] "GET /authenticate/login/ HTTP/1.1" 200 5937
+[14/Feb/2018 09:38:34] "GET /static/fonts/glyphicons-halflings-regular.woff2 HTTP/1.1" 404 1852
+[14/Feb/2018 09:38:34] "GET /static/fonts/glyphicons-halflings-regular.woff HTTP/1.1" 404 1849
+[14/Feb/2018 09:38:34] "GET /static/fonts/glyphicons-halflings-regular.ttf HTTP/1.1" 404 1846
+Internal Server Error: /authenticate/authenticate_user/
+Traceback (most recent call last):
+  File "/usr/lib64/python2.7/site-packages/django/core/handlers/exception.py", line 41, in inner
+    response = get_response(request)
+  File "/usr/lib64/python2.7/site-packages/django/core/handlers/base.py", line 249, in _legacy_get_response
+    response = self._get_response(request)
+  File "/usr/lib64/python2.7/site-packages/django/core/handlers/base.py", line 187, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "/usr/lib64/python2.7/site-packages/django/core/handlers/base.py", line 185, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/root/portal/src/authenticate/views.py", line 36, in authenticate_user
+    authenticated,result = auth_obj.ldap_bind(userid=user_id,password=password)
+  File "/root/portal/src/authenticate/authentication.py", line 30, in ldap_bind
+    except ldap.LDAPError, e:
+AttributeError: 'module' object has no attribute 'LDAPError'
+[14/Feb/2018 09:38:45] "POST /authenticate/authenticate_user/ HTTP/1.1" 500 75492
+[14/Feb/2018 09:38:54] "GET /authenticate/login/ HTTP/1.1" 200 5937
+[14/Feb/2018 09:38:54] "GET /static/fonts/glyphicons-halflings-regular.woff2 HTTP/1.1" 404 1852
+[14/Feb/2018 09:38:54] "GET /static/fonts/glyphicons-halflings-regular.woff HTTP/1.1" 404 1849
+[14/Feb/2018 09:38:54] "GET /static/fonts/glyphicons-halflings-regular.ttf HTTP/1.1" 404 1846

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <style>
+        .head
+        {
+            height:20px !important;
+        }
+        body{
+            margin-bottom: 60px;
+        }
+
+
+    .panel-footer.panel-custom {
+	    background: #1b1b1b;
+	    color: white;
+	    font-size: x-small;
+        width: 100%;
+        float:bottom;
+        position:fixed;
+        bottom:0;
+
+	}
+
+
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+<!-- Required Stylesheets -->
+
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'js/select2.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+   <script src="{% static 'js/bootstrap-treeview.min.js' %}"></script>
+    <script src="{% static 'js/bootstrapvalidator.min.js' %}"></script>
+
+    <script src="{%  static 'js/jquery-ui.min.js' %}"></script>
+
+
+    <link href="{%  static 'css/bootstrapValidator.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <!-- needed for glyphicons till change path-->
+    <link href="{% static 'css/select2.min.css'%}" rel="stylesheet" />
+    <link href="{% static 'css/jquery-ui.min.css'%}" rel="stylesheet" />
+    <link href="{% static 'css/bootstrap-fluid-adj.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+    <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
+   <link href="{% static 'css/bootstrap-treeview.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/jquery.dataTables.min.css' %}" rel="stylesheet">
+<!--    <link href="{% static 'css/table_search.css' %}" rel="stylesheet">-->
+<!--    <script src="{% static 'js/table_search.js' %}"></script>-->
+<!--    <script src="//rawgithub.com/stidges/jquery-searchable/master/dist/jquery.searchable-1.0.0.min.js"></script>-->
+
+
+   <title>Cisco {% block title %}HUU{% endblock %}</title>
+    {% block head %}
+    {% endblock %}
+  </head>
+<body>
+   <nav class="navbar navbar-inverse navbar-fixed-top head ">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand"><img src="{% static 'img/logo6.png' %}" height="30" width="45"></a>
+    </div>
+    <ul class="nav navbar-nav">
+        <li><a href="{%url 'ws_index'%}" style="font-size: 16px; font-weight: bold; "><span class="glyphicon glyphicon-home"></span></a></li>
+      <li><a>HUU Config Tool</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      {% comment %}<li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>{% endcomment %}
+    </ul>
+  </div>
+</nav>
+    <div class="container-fluid">
+    <div class="row-fluid">
+
+            <div class="span12">
+                {% block body_block %}
+                {% endblock %}
+            </div>
+            <!--/span-->
+        </div>
+        <!--/row-->
+    </div>
+    <!--/.fluid-container-->
+
+
+<footer  class=" text-center panel-footer panel-custom ">
+
+        <p>CISCO Systems, Inc. All rights reserved | HUU Team. | <a href="mailto:">Submit Feedback</a></p>
+
+</footer>
+
+
+
+<!-- Required Javascript -->
+</body>
+</html>

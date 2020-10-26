@@ -1,0 +1,299 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+textarea
+{
+    width : 850px !important;
+    height: 100px !important;
+}
+tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    box-sizing: content-box !important;
+    display: inline-block;
+    min-width: 0em !important;
+    padding: 0em 0em !important;
+    margin-left: 0px !important;
+    outline: none !important;
+}
+</style>
+    <script>
+    function releaseadd() {
+
+    var releaseName=$('#releaseName').val();
+    var platform = $('.selectm').val();
+    $.ajax({
+        url: '/components/listrelease/add/',
+        type: 'post',
+        data: {
+            releaseName: releaseName,
+            platform: JSON.stringify(platform),
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listrelease/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+//return confirm('Are you sure you want to delete this?')
+function releaseedit(releaseid) {
+
+    var releaseName=$('#editreleaseName'+releaseid).val();
+    var platform = $('.selectmp').val();
+    $.ajax({
+        url: '/components/listrelease/edit/',
+        type: 'post',
+        data: {
+            releaseid: releaseid,
+            releaseName: releaseName,
+            platform: JSON.stringify(platform),
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg)
+            window.location = '/components/listrelease/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+function releasedelete(releaseid) {
+    $.ajax({
+        url: '/components/listrelease/delete/',
+        type: 'post',
+        data: {
+            releaseid: releaseid,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+
+            window.location = '/components/listrelease/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+
+$(document).ready(function() {
+
+          $(".selectm").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+          $(".selectmp").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+
+    // Setup - add a text input to each footer cell
+    $('.exam').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+    } );
+
+    // DataTable
+    var table = $('#example').DataTable();
+
+    // Apply the search
+    table.columns().every( function () {
+        var that = this;
+
+        $( 'input', this.footer() ).on( 'keyup change', function () {
+            if ( that.search() !== this.value ) {
+                that
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+
+
+    } );
+
+     $('#releaseadd').bootstrapValidator({
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    releaseName: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The release Name is required'
+                            },
+                    },
+                    },
+                    platform: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The platform is required'
+                            },
+                        }
+
+                }
+            },
+     });
+
+
+$('#releaseadd').on('hidden.bs.modal', function () {
+    $(this).find('form').trigger('reset');
+    });
+
+{#$('#editreleaseModal'+releaseid).on('hidden.bs.modal', function () {#}
+{#            $(this).find('form').trigger('reset');});#}
+{##}
+
+
+{#$('#editreleaseModal'+releaseid).on('hidden.bs.modal', function () {#}
+{#            $(this).find('form').trigger('reset');});#}
+});
+    </script>
+{% endblock %}
+{% block body_block %}
+    <div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Release List</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/index/{{request.session.ws_name}}/{{request.session.release}}" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+
+<hr>
+    <br>
+
+    <div class="pull-right">
+    <a data-toggle="modal" data-target="#releaseadd" ><span class="glyphicon glyphicon-plus"></span> Add release</a>
+
+        <div id="releaseadd" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">release Information</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 25px">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-plus"></i></span>
+                    <input id="releaseName" type="text" class="form-control" placeholder="Enter the release Name">
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 25px">
+                    <label for="platform">Platforms</label><br>
+             <select class="selectm" multiple= "multiple" name="platform" style="width:568px;" >
+        {% for plat in allPlatforms %}
+        <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+        {% endfor %}
+    </select>
+                    </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="releaseadd()">Add release</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </div>
+    </div>
+
+    <table id="example" class="display component table table-striped" cellspacing="0" width="100%">
+<!--<table class="table table-hover  results table-striped component">
+    -->
+    <thead><tr>
+        <th>Releases</th>
+        <th>Platforms</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+      <tfoot><tr>
+        <th class="exam">Releases</th>
+        <th class="exam">Platforms</th>
+        <th></th>
+        <th></th>
+    </tr>
+    </tfoot>
+        <tbody>
+
+
+        {%  for rel in allReleases %}
+            <tr>
+                <td>{{ rel.releaseName }}</td>
+            <td>
+                <ul>
+                {%  for plat in rel.platforms.all %}
+                        <li>{{ plat.platformName }}</li>
+                {% endfor %}
+                </ul>
+            </td>
+                <td><a data-toggle="modal" data-target="#editreleaseModal{{ rel.id }}"><span class="glyphicon glyphicon-pencil"></span>Edit {{ rel.releaseName }}</a></td>
+                <td><a data-toggle="modal" data-target="#deletereleaseModal{{ rel.id }}"><span class="glyphicon glyphicon-trash"></span> Delete {{ rel.releaseName }}</a></td>
+    <div id="editreleaseModal{{ rel.id }}" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit release Information</h4>
+                </div>
+        <div class="modal-body">
+            <div class="input-group" style="margin-bottom: 25px" >
+                <span class="input-group-addon"><i class="glyphicon glyphicon-pencil"></i></span>
+                <input id="editreleaseName{{ rel.id }}" type="text" class="form-control" value="{{ rel.releaseName }}">
+            </div>
+            <div class="input-group" style="margin-bottom: 25px">
+                        <label for="platform">Platforms</label><br>
+                 <select class="selectmp" multiple= "multiple" name="platform" style="width:568px;" >
+            {% for plat in allPlatforms %}
+                {%  if plat in rel.platforms.all %}
+                    <option value="{{plat.platformName}}" selected="true">{{ plat.platformName }}</option>
+                {% else %}
+                    <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+                {% endif %}
+            {% endfor %}
+            </select>
+          </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="releaseedit({{ rel.id }})">Edit release</button>
+             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+                </div>
+        </div>
+    </div>
+    </div>
+
+    <div id="deletereleaseModal{{ rel.id }}" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete release Information</h4>
+                </div>
+
+
+    <div class="modal-body">
+
+        <div class="input-group" style="margin-bottom: 25px" >
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-minus"></i></span>
+                    <input id="deletereleaseName" type="text" class="form-control" value="{{ rel.releaseName }}" readonly>
+                    </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="releasedelete({{ rel.id }})">Delete release</button>
+         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+            </tr>
+      {% endfor %}
+
+    </tbody>
+
+    </table>
+{% endblock %}

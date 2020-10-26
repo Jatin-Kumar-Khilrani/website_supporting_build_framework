@@ -1,0 +1,842 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<!--
+ function addpolicy() {
+
+            //var firmwareName=$('#firmwareName').val();
+            //var platform = $('.selectm').val();
+
+            $.ajax({
+            url: '/components/addcomponent/',
+            type: 'post',
+            data: {
+                policy_table :JSON.stringify($('#tblAppendGrid').appendGrid('getAllValue')),
+                //firmwareName: firmwareName,
+                //platform: JSON.stringify(platform),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function (response) {
+                alert(response.msg);
+                //window.location = '/components/listfirmware/'
+            },
+            error: function (xhr, status, error) {
+                alert(xhr.responseText);
+            }
+            });
+        }
+-->
+ <script type="text/javascript">
+        function addpolicy() {
+
+            //var firmwareName=$('#firmwareName').val();
+            //var platform = $('.selectm').val();
+
+            // put some validation here
+            var pci_attribute=$('#id_pci_attr').val();
+            var i=0;
+            var count_enable=0,count_disable=0;
+            for (i = 0; i < pci_attribute.length; i++)
+            {
+                if(pci_attribute[i]=='OPROM_FORCE_DISABLE_LEGACY' || pci_attribute[i]=='OPROM_FORCE_DISABLE_UEFI')
+                {
+                    count_disable=count_disable+1;
+                }
+
+                if(pci_attribute[i]=='OPROM_FORCE_ENABLE_LEGACY' || pci_attribute[i]=='OPROM_FORCE_ENABLE_UEFI')
+                {
+                    count_enable=count_enable+1;
+                }
+            }
+
+            if(count_enable>1 || count_disable>1)
+            {
+                alert(pci_attribute+" is a bad choice! two enables or two disable selection")
+                return false;
+            }
+
+            $.ajax({
+            url: '/components/addcomponent/addpolicy',
+            type: 'post',
+            data: {
+                policy_table :JSON.stringify($('#tblAppendGrid').appendGrid('getAllValue')),
+                //firmwareName: firmwareName,
+                //platform: JSON.stringify(platform),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function (response) {
+                //alert(response.msg);
+                //window.location = '/components/listfirmware/'
+            },
+            error: function (xhr, status, error) {
+                alert(xhr.responseText);
+            }
+            });
+
+            //alert("jquery is submitted !")
+        }
+        $(document).ready(function(){
+
+            $(function() {
+                    $('#tblAppendGrid').appendGrid({
+                        caption: 'Policy Associations',
+                        initRows: 1,
+                        captionfirmwaretip: {
+                        items: 'td',
+                        content: 'Policy Associations',
+                        show: {
+                            effect: 'fold',
+                            delay: 250
+                        }
+                        },
+                        columns: [
+                        //{ name: 'firmware', display: 'firmware', ctrlAttr: { maxlength: 10, readonly:true  }},
+                        //{ name: 'component', display: 'Component', type: 'select', ctrlOptions:{{ ctrlOptionsComp|safe}}},
+                        { name: 'platform', display: 'Platform', type: 'select' , ctrlOptions:{{ ctrlOptionsPlat|safe}}},
+                        { name: 'fanpolicy', display: 'fanpolicy', type: 'select' , ctrlOptions:{ 0: '{Choose}', 1: 'LOW_POWER_POLICY', 2: 'HIGH_POWER_POLICY', 3: 'BALANCED_POWER_POLICY', 4: 'MAX_POWER_POLICY'}},
+                        //{ name: 'cardthresholdoffset', display: 'Card Threshold Offset',  type: 'text', ctrlAttr: { maxlength: 4 }},
+                        //{ name: 'release', display: 'Release', type: 'select' , value: 'granite_peak', invisible: true, ctrlOptions:{{ ctrlOptionsRel|safe}}}
+                        ],
+
+                        {#        customFooterButtons: [#}
+                        {#            { uiButton: { icons: { primary: 'ui-icon-disk' }, label: 'Save' }, click: function (evt) { alert('Saved'); }, atTheFront: true },#}
+                        {#            //{ uiButton: { icons: { primary: 'ui-icon-arrowthickstop-1-s' }, text: false }, btnAttr: { title: 'Download Data' }, click: function (evt) { alert('Download is in process...'); } }#}
+                        {#        ],#}
+
+                        //initData: {{initm|safe}},
+
+                        hideButtons: {
+                        //remove: true,
+                        insert: true,
+                        moveUp : true,
+                        moveDown : true,
+                        }
+                    });
+            });
+
+
+            $(".select").select2();
+
+            $(".selectm").select2({closeOnSelect: true, tags: true, placeholder:"Type the name of the platform"});
+          
+            $(".selectperipheral").select2({closeOnSelect: true, tags: true, placeholder:"Type the name"});
+
+            $(".selectfanpolicy").select2({closeOnSelect: true, tags: true, placeholder:"Type the name"});
+
+            $(".selectyn").select2({closeOnSelect: true, tags: false, placeholder:"Type the name"});
+
+            $(".selectyn_mtcp").select2({closeOnSelect: true, tags: false, placeholder:"Type the name"});
+
+            $(".selectfanpolicy").change(function(){
+                if($("#idplatform").val())
+                {
+                    $("#idfanpolicyconfig").removeAttr("disabled");
+                    $("#idfanpolicyconfig").append('<option value="option6" selected>'+$("#idplatform").val()+'_'+$(this).val()+'</option>');
+                }
+            });
+            $("#idplatform").change(function(){
+                if($(".selectfanpolicy").val())
+                {
+                    $("#idfanpolicyconfig").removeAttr("disabled");
+                    $("#idfanpolicyconfig").append('<option value="option6" selected>'+$("#idplatform").val()+'_'+$(".selectfanpolicy").val()+'</option>');
+                }
+                if($("#idcardthreshold").val())
+                {
+                    $("#idcardthresholdconfig").removeAttr("disabled");
+                    $("#idcardthresholdconfig").append('<option value="option6" selected>'+$("#idplatform").val()+'_'+$('input[name="card_threshold_offset"]').val()+'</option>');
+                }
+            });
+            $("#idcardthreshold").change(function(){
+                if($("#idplatform").val())
+                {
+                    $("#idcardthresholdconfig").removeAttr("disabled");
+                    $("#idcardthresholdconfig").append('<option value="option6" selected>'+$("#idplatform").val()+'_'+$('input[name="card_threshold_offset"]').val()+'</option>');
+                }
+            });
+
+
+            $(".selectyn").change(function() {
+                if($(this).val()=="yes")
+                {
+                    $('input[name="command"]').removeAttr("readonly");
+                            $('input[name="lock_payload"]').removeAttr("readonly");
+                            $('input[name="unlock_payload"]').removeAttr("readonly");
+                            $('input[name="secure_firmware_update_i2cslaveaddr"]').removeAttr("readonly");
+
+                    $('input[name="command"]').val("");
+                            $('input[name="lock_payload"]').val("");
+                            $('input[name="unlock_payload"]').val("");
+                            $('input[name="secure_firmware_update_i2cslaveaddr"]').val("");
+                }
+                else if($(this).val()=="no")
+                {
+                    $('input[name="command"]').val("NA");
+                            $('input[name="lock_payload"]').val("NA");
+                            $('input[name="unlock_payload"]').val("NA");
+                            $('input[name="secure_firmware_update_i2cslaveaddr"]').val("NA");
+
+                    $('input[name="command"]').attr({ value:"NA", readonly:"true" });
+                            $('input[name="lock_payload"]').attr({ readonly:"true", value:"NA" });
+                            $('input[name="unlock_payload"]').attr({ readonly:"true", value:"NA" });
+                            $('input[name="secure_firmware_update_i2cslaveaddr"]').attr({ readonly:"true", value:"NA" });
+                }
+            });
+
+            $(".selectyn_mtcp").change(function() {
+                if($(this).val()=="yes")
+                {
+                    $("#id_mtcp_interfaces").prop('disabled', false);
+                    $("#id_mtcp_interfaces").val("");
+                }
+                else if($(this).val()=="no")
+                {
+                    $("#id_mtcp_interfaces").val("NA");
+                    $("#id_mtcp_interfaces").prop('disabled', true);
+                }
+            });
+          
+            $(".select").change(function() {
+                var a = $(".select").val();
+                var b = a.split("|");
+                $('input[name="uniqueName"]').val(b[0]);
+                $('input[name="description"]').val(b[1]);
+                $('input[name="packageVersion"]').val(b[2]);
+            var k = b[3].split(",");
+                //alert(k);
+                $(".selectm").val(k).trigger("change");
+                $('input[name="vendorString"]').val(b[4]);
+                <!-- $('input[name="verifyApi"]').val(b[5]); -->
+            });
+
+            $('#addComponent').bootstrapValidator({
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    vendorId: {
+                        validators: {
+                            row: '.col-xs-2',
+                            notEmpty: {
+                                message: 'The Vendor Id is required'
+                            },
+                            stringLength: {
+                                min: 4,
+                                max: 4,
+                                message: 'The Vendor Id must be 4 characters long'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9]+$/,
+                                message: 'The Vendor Id can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    deviceId: {
+                        validators: {
+                            row: '.col-xs-2',
+                            notEmpty: {
+                                message: 'The Device Id is required'
+                            },
+                            stringLength: {
+                                min: 4,
+                                max: 4,
+                                message: 'The Device Id must be 4 characters long'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9]+$/,
+                                message: 'The Device Id can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    subVendorId: {
+                        row: '.col-xs-2',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Sub-Vendor Id is required'
+                            },
+                            stringLength: {
+                                min: 4,
+                                max: 4,
+                                message: 'The Sub-Vendor Id must be 4 characters long'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9]+$/,
+                                message: 'The Sub-Vendor Id can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    subDeviceId: {
+                        row: '.col-xs-2',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Sub-Device Id is required'
+                            },
+                            stringLength: {
+                                min: 4,
+                                max: 4,
+                                message: 'The Sub-Device Id must be 4 characters long'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9]+$/,
+                                message: 'The Sub-Device Id can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    uniqueName: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Brand String is required'
+                            },
+                            stringLength: {
+                                min: 1,
+                                max: 100,
+                                message: 'The Brand String must be 100 characters long'
+                            }
+                        }
+                    },
+                    pmin: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The PMin is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The PMin can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    pmax: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Pmax is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The Pmax can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    pid: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The PID is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The PID can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    vid: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The version id is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The version id can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    sku: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The SKU is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The SKU can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    oem_name: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The OEM Part Number is required'
+                            },
+                        }
+                    },
+                    model: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The OEM Part Number is required'
+                            },
+                        }
+                    },
+                    oem_part_number: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The OEM Part Number is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The OEM Part Number can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    part_number: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Part Number is required'
+                            },
+                        }
+                    },
+                    lff: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Lff is required'
+                            },
+                        }
+                    },
+                    peripheral_type: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Peripheral Type is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The Peripheral Type can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    no_of_temp_sensors: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The No. of Temp Sensors is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The No. of Temp Sensors can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    temp_sensor_i2cslaveaddr: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Temp Sensor I2cSlaveAddr is required'
+                            }
+                        }
+                    },
+                    fanpolicy: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Fanpolicy is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The Fanpolicy can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    secure_firmware_support: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Secure firmware support is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The Secure firmware support can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    card_threshold_offset: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Card threshold offset is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The Card threshold offset can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    fru_major_type: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Fru Major Type is required'
+                            }
+                        }
+                    },
+                    fru_minor_type: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Fru Minor Type is required'
+                            }
+                        }
+                    },
+                    pci_attribute: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The PCI Attribute is required'
+                            }
+                        }
+                    },
+                    packageVersion: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Package Version is required'
+                            },
+                        }
+                    },
+                    vendorString: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Vendor is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The Vendor can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    fanpolicy_platform_config: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Fanpolicy Platform Config is required'
+                            },
+                        }
+                    },
+                    card_threshold_offset_config: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Card Threshold Offset Config is required'
+                            },
+                        }
+                    },
+                    description: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The description is required'
+                            },
+                            stringLength: {
+                                min: 1,
+                                max: 100,
+                                message: 'The description must not be more than 100 characters long'
+                            }
+                        }
+                    },
+                    mctp_supported: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The mctp_supported is required'
+                            }
+
+                        }
+                    },
+                    mctp_interfaces_supported: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The mctp_interfaces_supported is required'
+                            }
+                        }
+                    },
+                    platform: {
+                        row: '.col-xs-8',
+                        validators: {
+                            notEmpty: {
+                                message: 'The platform is required'
+                            },
+                        }
+                    },
+
+                }
+            });
+
+        });
+ </script>
+{% endblock %}
+{% block body_block %}
+ 
+<div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Add a New PCIE Component</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/index/{{request.session.ws_name}}/{{request.session.release}}" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+
+    </div>
+</div>
+<hr>
+
+<div style=" clear: right; float: right; ">
+<select class="select" style="width:200px;" >
+    <option disabled selected value> -- Select a Template -- </option>
+        {% for component in allComponents %}
+        <option value="{{ component.uniqueName }}|{{ component.description }}|{{ component.packageVersion }}|{%  for l in component.platform.all %}{{l.platformName}},{% endfor %}|{{ component.vendorString }}|{{ component.verifyApi }}">{{ component.description }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- <p1> This is the right place to edit </p1> -->
+    <form id="addComponent" action="/components/addcomponent/" onsubmit="return addpolicy()" method="post">
+    {% csrf_token %}
+    <div class="form-group row" style="width:95%;">
+      <div class="col-xs-2">
+        <label for="vendorId">Vendor Id</label>
+        <input class="form-control" placeholder="Vendor Id" name="vendorId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="deviceId">Device Id</label>
+        <input class="form-control" placeholder="Device Id" name="deviceId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="subVendorId">Sub Vendor Id</label>
+        <input class="form-control" placeholder="Sub Vendor Id" name="subVendorId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="subDeviceId">Sub Device Id</label>
+        <input class="form-control" placeholder="Sub Device Id" name="subDeviceId" type="text">
+      </div>
+    </div>
+    <div class="form-group row" style="width:95%;">
+      <div class="from-group row" id="inputArea" style="width:95%;"></div>
+	<!--<p2>here we will see the effect</p2> -->
+    </div>
+      <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="uniqueName">Brand String</label>
+        <input class="form-control" placeholder="Brand String" name="uniqueName" type="text">
+      </div>
+         <div class="col-xs-4">
+        <label for="description">Description</label>
+        <input class="form-control" placeholder="Component" name="description" type="text">
+      </div>
+    </div>
+     <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="packageVersion">Package Version</label>
+        <input class="form-control"  placeholder="Package Version"  name="packageVersion" type="text">
+      </div>
+
+        <div class="col-xs-4">
+        <label for="vendorString">Vendor</label>
+        <input class="form-control" placeholder="Vendor" name="vendorString" type="text">
+      </div>
+         <!--<div class="col-xs-4">
+         <label for="verifyApi">Verify</label>
+         <input class="form-control" placeholder="Verify api" name="verifyApi" type="text">
+      </div> -->
+    </div>
+
+    <div class="form-group row">
+	
+     <div class="col-xs-4">
+       <label for="pmin">PMin</label>
+       <input class="form-control"  placeholder="PMin"  name="pmin" type="text">
+     </div>
+	
+     <div class="col-xs-4">
+       <label for="pmax">Pmax</label>
+       <input class="form-control"  placeholder="Pmax"  name="pmax" type="text">
+     </div>
+   
+    </div>
+	
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="pid">PID</label>
+          <input class="form-control"  placeholder="PID"  name="pid" type="text">
+	</div>
+	
+	<div class="col-xs-4">
+          <label for="vid">Version Id</label>
+          <input class="form-control"  placeholder="Version Id"  name="vid" type="text">
+	</div>
+    </div>
+
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="sku">SKU</label>
+          <input class="form-control"  placeholder="SKU"  name="sku" type="text">
+	</div>
+	
+	<div class="col-xs-4">
+          <label for="oem_part_number">OEM Part Number</label>
+          <input class="form-control"  placeholder="OEM Part Number"  name="oem_part_number" type="text">
+	</div>
+
+    </div>
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="peripheral_type">Peripheral Type</label>
+          <select class="selectperipheral"  name="peripheral_type" style="width:95%"><!--:672px;"-->
+           <option disabled selected value> -- Select a Peripheral -- </option>
+	   <option value="gpu">GPU</option>
+           <option value="vic">VIC</option>
+           <option value="fusionio">FUSIONIO</option>
+           <option value="nvme">NVME</option>
+           <option value="pcie">PCIE</option>
+           <option value="hercules">HERCULES</option>
+          </select>
+	</div>
+	
+	<div class="col-xs-4">
+          <label for="no_of_temp_sensors">No. Of Temp Sensors</label>
+          <input class="form-control"  placeholder="No. of Temp Sensors"  name="no_of_temp_sensor" type="text">
+	</div>
+
+    </div>
+	
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="temp_sensor_i2cslaveaddr">Temp Sensor I2cSlaveAddr</label>
+          <input class="form-control"  placeholder="temp_senosr_I2cSlaveAddr"  name="temp_sensor_i2cslaveaddr" type="text">
+	</div>
+<!--	
+	<div class="col-xs-4">
+          <label for="fanpolicy">Fanpolicy</label>
+          <select class="selectperipheral"  name="fanpolicy" style="width:95%">
+           <option disabled selected value> -- Select a Fanpolicy -- </option>
+           <option value="gpu">LOW_POWER_POLICY</option>
+           <option value="vic">BALANCED_POWER_POLICY</option>
+           <option value="fusionio">HIGH_POWER_POLICY</option>
+           <option value="nvme">MAX_POWER_POLICY</option>
+          </select>
+	</div>
+-->
+        <div class="col-xs-4">
+          <label for="part_number">Part Number</label>
+          <input class="form-control"  placeholder="part_number"  name="part_number" type="text">
+	    </div>
+    </div>
+	
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="secure_firmware_support">Secure Firmware Support</label>
+          <select class="selectyn"  name="secure_firmware_support" style="width:95%"><!--:672px;"-->
+           <option disabled selected value> -- Select your choice -- </option>
+           <option value="yes">YES</option>
+           <option value="no">NO</option>
+	  </select>
+	</div>
+        <div class="col-xs-4">
+          <label for="lff">Lff</label>
+          <input class="form-control"  placeholder="lff"  name="lff" type="text">
+	    </div>
+    </div>
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="secure_firmware_update_i2cslaveaddr">Secure Firmware Update I2cSlaveAddr</label>
+          <input class="form-control"  placeholder="Secure Firmware update I2cSlaveAddr" readonly="true" name="secure_firmware_update_i2cslaveaddr" type="text">
+	</div>
+	
+	<div class="col-xs-4">
+          <label for="command">Command</label>
+          <input class="form-control"  placeholder="Command"  readonly="true" name="command" type="text">
+	</div>
+    </div>
+	
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="lock_payload">Lock Payload</label>
+          <input class="form-control"  placeholder="Lock payload"  readonly="true" name="lock_payload" type="text">
+	</div>
+	
+	<div class="col-xs-4">
+          <label for="unlock_payload">Unlock Payload</label>
+          <input class="form-control"  placeholder="Unlock payload"  readonly="true" name="unlock_payload" type="text">
+	</div>
+    </div>
+
+
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="model">Model</label>
+          <input class="form-control"  placeholder="Model" name="model" type="text">
+	</div>
+
+	<div class="col-xs-4">
+          <label for="oem_name">OEM Name</label>
+          <input class="form-control"  placeholder="OEM Name" name="oem_name" type="text">
+	</div>
+    </div>
+	
+    <div class="form-group row">
+	
+	<div class="col-xs-4">
+          <label for="fru_major_type">Fru Major Type</label>
+          <input class="form-control"  placeholder="Fru Major Type"  name="fru_major_type" type="text">
+	</div>
+    </div>
+
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="fru_minor_type">Fru Minor Type</label>
+          <input class="form-control"  placeholder="Fru Minor Type"  name="fru_minor_type" type="text">
+	</div>
+	
+	<div class="col-xs-4">
+          <label for="pci_attribute">PCI Attribute</label>
+          <select id="id_pci_attr" class="selectperipheral"  name="pci_attribute" multiple= "multiple" style="width:95%"><!--:672px;"-->
+           <option value="ADAPTER_ATTRIBUTE_NIL">ADAPTER_ATTRIBUTE_NIL</option>
+           <option value="OPROM_MUST_BE_EXECUTED">OPROM_MUST_BE_EXECUTED</option>
+           <option value="OPROM_MUTUAL_EXCLUSIVE">OPROM_MUTUAL_EXCLUSIVE</option>
+           <option value="OPROM_FORCE_DISABLE_UEFI">OPROM_FORCE_DISABLE_UEFI</option>
+           <option value="OPROM_FORCE_DISABLE_LEGACY">OPROM_FORCE_DISABLE_LEGACY</option>
+           <option value="OPROM_FORCE_ENABLE_UEFI">OPROM_FORCE_ENABLE_UEFI</option>
+           <option value="OPROM_FORCE_ENABLE_LEGACY">OPROM_FORCE_ENABLE_LEGACY</option>
+           <option value="FORCE_DISABLE_ACS">FORCE_DISABLE_ACS</option>
+           <option value="ALLOCATE_MMIO_ABOVE_4GB">ALLOCATE_MMIO_ABOVE_4GB</option>
+           <option value="ADAPTER_SKIP_BIOS_ENUMERATION">ADAPTER_SKIP_BIOS_ENUMERATION</option>
+	  </select>
+	</div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+              <label for="mctp_supported">MCTP Supported</label>
+              <select class="selectyn_mtcp"  name="mctp_supported" style="width:95%"><!--:672px;"-->
+                  <option disabled selected value> -- Select your choice -- </option>
+                  <option value="yes">YES</option>
+                  <option value="no">NO</option>
+              </select>
+        </div>
+
+        <div class="col-xs-4">
+              <label for="mctp_interfaces_supported">MCTP Interfaces Supported</label>
+                <select id="id_mtcp_interfaces" class="selectperipheral"  name="mctp_interfaces_supported" style="width:95%"><!--:672px;"-->
+                    <option disabled selected value> -- Select your choice -- </option>
+                    <option value="SMBUS">SMBUS</option>
+                    <option value="PCIE">PCIE</option>
+                    <option value="BOTH">BOTH</option>
+                </select>
+        </div>
+    </div>
+
+    <table id="tblAppendGrid"></table>
+    <br/>
+        <input type="submit" class="btn btn-default" value="Add Component"/>
+    <!--<p><LABEL for="exists">Exists:</LABEL><input type="checkbox" placeholder="Exists" name="exists" checked></input></p> onclick="addpolicy()" -->
+</form>
+
+{% endblock %}
+
+
+
+
+

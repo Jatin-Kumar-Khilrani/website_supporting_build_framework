@@ -1,0 +1,224 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+textarea
+{
+    width : 850px !important;
+    height: 100px !important;
+}
+tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    box-sizing: content-box !important;
+    display: inline-block;
+    min-width: 0em !important;
+    padding: 0em 0em !important;
+    margin-left: 0px !important;
+    outline: none !important;
+}
+</style>
+    <script>
+    function platformadd() {
+
+    var platformName=$('#platformName').val();
+
+    $.ajax({
+        url: '/components/listplatform/add/',
+        type: 'post',
+        data: {
+            platformName: platformName,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listplatform/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+//return confirm('Are you sure you want to delete this?')
+function platformedit(platformid) {
+
+    var platformName=$('#editplatformName').val();
+    $.ajax({
+        url: '/components/listplatform/edit/',
+        type: 'post',
+        data: {
+            platformid: platformid,
+            platformName: platformName,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listplatform/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+function platformdelete(platformid) {
+    $.ajax({
+        url: '/components/listplatform/delete/',
+        type: 'post',
+        data: {
+            platformid: platformid,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listplatform/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+
+$(document).ready(function() {
+
+
+    // Setup - add a text input to each footer cell
+    $('.exam').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+    } );
+
+    // DataTable
+    var table = $('#example').DataTable();
+
+    // Apply the search
+    table.columns().every( function () {
+        var that = this;
+
+        $( 'input', this.footer() ).on( 'keyup change', function () {
+            if ( that.search() !== this.value ) {
+                that
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+} );
+    </script>
+{% endblock %}
+{% block body_block %}
+    <div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Platform List</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/index/{{request.session.ws_name}}/{{request.session.release}}" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+
+<hr>
+    <div class="pull-right">
+    <a data-toggle="modal" data-target="#platformadd" ><span class="glyphicon glyphicon-plus"></span> Add Platform</a>
+
+        <div id="platformadd" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Platform Information</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 25px">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-plus"></i></span>
+                    <input id="platformName" type="text" class="form-control" placeholder="Enter the Platform Name">
+                    </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="platformadd()">Add platform</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </div>
+    </div>
+    <table id="example" class="display component table table-striped" cellspacing="0" width="100%">
+<!--<table class="table table-hover  results table-striped component">
+    -->
+    <thead><tr>
+        <th>Platforms</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+      <tfoot><tr>
+        <th class="exam">Platforms</th>
+
+        <th></th>
+
+        <th></th>
+    </tr>
+    </tfoot>
+        <tbody>
+
+
+        {%  for plat in allPlatforms %}
+            <tr>
+
+                <td>{{ plat.platformName }}</td>
+                <td><a data-toggle="modal" data-target="#editplatformModal{{ plat.platformName }}"><span class="glyphicon glyphicon-pencil"></span>Edit {{ plat.platformName }}</a></td>
+                <td><a data-toggle="modal" data-target="#deleteplatformModal{{ plat.platformName }}"><span class="glyphicon glyphicon-trash"></span> Delete {{ plat.platformName }}</a></td>
+    <div id="editplatformModal{{ plat.platformName }}" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit Platform Information</h4>
+                </div>
+
+
+    <div class="modal-body">
+
+        <div class="input-group" style="margin-bottom: 25px" >
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-plus"></i></span>
+                    <input id="editplatformName" type="text" class="form-control" value="{{ plat.platformName }}">
+                    </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="platformedit({{ plat.id }})">Edit platform</button>
+         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+            </div>
+        </div>
+    </div>
+
+            <div id="deleteplatformModal{{ plat.platformName }}" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Delete Platform Information</h4>
+                </div>
+
+
+    <div class="modal-body">
+
+        <div class="input-group" style="margin-bottom: 25px" >
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-minus"></i></span>
+                    <input id="deleteplatformName" type="text" class="form-control" value="{{ plat.platformName }}" readonly>
+                    </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="platformdelete({{ plat.id }})">Delete platform</button>
+         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+            </div>
+        </div>
+    </div>
+
+
+
+            </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}

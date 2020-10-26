@@ -1,0 +1,307 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+#logModal .modal-body{
+	height:300px;
+	overflow-x:auto;
+}
+</style>
+<script>
+
+function download_catalog(){
+	//$('#spinner').css("display","block");
+	//$('#create_iso_b').prop("disabled",true);
+	//$('#d_iso').prop("disabled",true);
+	//alert($("#add_ws").serialize())
+	alert( $("#platform").val())
+	$.ajax({
+	     url: "/workspace/download_catalog/",
+	     type: 'post',
+	     data:{
+	    	 platform : $("#platform").val(),
+	    	 csrfmiddlewaretoken: '{{ csrf_token }}'
+	     },
+	     success: function(response){
+
+	    	 //$('#spinner').css("display","none");
+	    	 //$('#create_iso_b').prop("disabled",false);
+	    	 //alert(response.msg);
+	    	 console.log(JSON.stringify(response))
+	    	  if (responce.status) {
+                     window.location = getUrl
+              }
+	    	 /*if (!response.status){
+	    		 $('#d_iso').prop("disabled",true);
+	    	}*/
+	    	//window.location = "/components/index/";
+	     }
+	});
+	return true;
+}
+
+function create_iso(){
+	$('#spinner').css("display","block");
+	$('#create_iso_b').prop("disabled",true);
+	$('#d_iso').prop("disabled",true);
+	//alert($("#add_ws").serialize())
+	$.ajax({
+	     url: "/workspace/create_iso/",
+	     type: 'post',
+	     data:{
+	    	 platform : $("#platform").val(),
+	    	 container : $("#container").val(),
+	    	 container_version : $("#container_version").val(),
+	    	 vic_container : $("#vic_container").val(),
+	    	 vic_fw_version : $("#vic_fw_version").val(),
+	    	 bios_version : $("#bios_version").val(),
+    		 csrfmiddlewaretoken: '{{ csrf_token }}'
+	     },
+	     success: function(response){
+	    	 $('#spinner').css("display","none");
+	    	 $('#create_iso_b').prop("disabled",false);
+	    	 alert(response.msg);
+	    	 if (!response.status){
+	    		 $('#d_iso').prop("disabled",true);
+	    	}
+	    	//window.location = "/components/index/";
+	     }
+	     });
+	 return false;
+}
+function trigger_sanity(){
+	$('#spinner_sanity').css("display","block");
+	$('#create_iso_b').prop("disabled",true);
+	$('#d_iso').prop("disabled",true);
+	$('#trigger_sanity_b').prop("disabled",true);
+	//alert($("#add_ws").serialize())
+	$.ajax({
+	     url: "/workspace/create_iso/",
+	     type: 'post',
+	     data:{
+	    	 platform : $("#platform").val(),
+	    	 container : $("#container").val(),
+	    	 container_version : $("#container_version").val(),
+	    	 vic_container : $("#vic_container").val(),
+	    	 vic_fw_version : $("#vic_fw_version").val(),
+	    	 bios_version : $("#bios_version").val(),
+    		 csrfmiddlewaretoken: '{{ csrf_token }}'
+	     },
+	     success: function(response){
+	    	 $('#spinner_sanity').css("display","none");
+	    	 $('#create_iso_b').prop("disabled",false);
+	    	 alert(response.msg);
+	    	 if (!response.status){
+	    		 $('#d_iso').prop("disabled",true);
+	    		 $('#trigger_sanity_b').prop("disabled",true);
+	    	}
+	    	//window.location = "/components/index/";
+	     }
+	     });
+	 return false;
+}
+
+$(document).ready(function() {
+	$(".selectm").select2({closeOnSelect: true, tags: true, placeholder:"Type the name of the platform"});
+	var stat = {{iso_exists}};
+	if (!stat){
+		$('#d_iso').prop("disabled",true);
+	}
+});
+
+/* $(document).ready(function() {
+	get_iso_status();
+    setInterval("get_iso_status()",10000);
+
+});
+
+function get_iso_status() { 
+	  $.ajax({
+	   type: "GET",
+	   url: "/workspace/get_iso_status/",
+	   data: "user=success",
+	   success: function(response){
+		   //$(msg).appendTo("#status");
+		   //alert(response.discovery_list );
+		   //$('#log').html(response.log);
+		   
+	   },
+	   error: function(xhr, status, error){
+			alert(xhr.responseText);
+
+		}
+	 });
+} */
+
+function get_log() { 
+	  $.ajax({
+	   type: "POST",
+	   url: "/workspace/get_log/",
+	   data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+	   success: function(response){
+			   $('#log').text(response.log);
+			   $('#logModal').modal('show');
+		   }
+	 });
+}
+
+function download_iso() { 
+	  $.ajax({
+		   type: "POST",
+		   url: "/workspace/download_iso/",
+		   data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+		   success: function(response){
+				   //$(msg).appendTo("#status");
+				   if (response.status == false){
+					   alert(response.msg);
+				   }
+				   
+			   }
+		 });
+	}
+
+</script>
+{% endblock %}
+{% block body_block %} 
+<h3>Create HUU ISO</h3>
+<div class="col-sm-8">
+  <div class="well" style="background: white; ">
+	<form class="form-horizontal" id="iso_form">
+
+		<div class="form-group" style="width:100px;">
+		    <label for="platform">Platform : </label>
+            <select id="platform" class="selectm" name="platform" style="width:672px;">
+                {% for plat in allPlatforms %}
+                <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+                {% endfor %}
+            </select>
+		</div>
+
+		<div class="form-group" style="width:800px;">
+		    <label for="container">Firmware Container : </label>
+		    <input type="text" class="form-control" id="container" value="http://cspg-download.cisco.com/firmware-containers/plumas2/granite_peak_mr2/3.1.3S9/images/CIMC/C240M5-3.1.3S9.zip">
+		  </div>
+		  <div class="form-group" style="width:200px;">
+		    <label for="container_version">Firmware Container Version : </label>
+		    <input type="text" class="form-control" id="container_version" value="3.1.3S9">
+		  </div>
+		  <div class="form-group">
+		    <label for="vic_container">VIC Firmware Path : </label>
+		    <input type="text" class="form-control" id="vic_container" value = "http://cspg-download.cisco.com/ucs-b-series/ironcanyon-builds/svn_latest/Images.d22_22A_17B_17C/Palo/fw/">
+		  </div>
+		  <div class="form-group" style="width:200px;">
+		    <label for="vic_fw_version">VIC Firmware Version  : </label>
+		    <input type="text" class="form-control" id="vic_fw_version" value="4.0(0.d17_17A_13B_13C)">
+		  </div>
+		  <div class="form-group" style="width:200px;">
+		    <label for="bios_version">BIOS Version : </label>
+		    <input type="text" class="form-control" id="bios_version" value="4.0.0.2">
+		  </div>
+		  <div style="text-align: right;">
+		  		<button type="button" class="btn btn-primary" onclick="create_iso();" id="create_iso_b">Create ISO</button>
+		  </div>
+	</form>
+   </div>
+</div>
+<div class="col-sm-4">
+	<div class="well" style="background: white;">
+		<h4>Progress Status</h4>
+		<hr>
+		<div id="spinner" style="display:none;"> 
+			<i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i> &nbsp;Building ISO...
+		</div>
+		<div id="spinner_sanity" style="display:none;">
+			<i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i> &nbsp;Running Sanity...
+		</div>
+		<form action="/workspace/download_iso/">
+		    <input type="submit" value="Download HUU Image" id="d_iso" class="btn btn-primary"/>
+		</form>
+		<a href='#' onClick="javascript:get_log();"><span class="glyphicon glyphicon-list-alt" data-toggle="modal" data-target="#logModal" > Build Log</span></a>
+	</div>
+	<div class="well" style="background: white;">
+		<h4>Download Catalog</h4>
+		<hr>
+		<div id="spinner" style="display:none;">
+			<i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i> &nbsp;Downloading File...
+		</div>
+
+		<form action="/workspace/download_catalog/">
+			<div class="form-group" style="width:300px;">
+		    <label for="platform">Select Platform : </label>
+            <select id="platform" class="selectm" name="platform" >
+                {% for plat in allPlatforms %}
+                <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+                {% endfor %}
+			</select>
+			</br>
+			</br>
+			 <div class="form-group"> <!--style="text-align: right;" -->
+			  <input type="submit" class="btn btn-primary" value="Download Catalog">
+			 </div>
+		  </div>
+		</form>
+	</div>
+	<div class="well" style="background: white;">
+		<h4>Run Sanity</h4>
+		<hr>
+
+		<p1>Target BMC</p1>
+		<hr>
+		<div class="form-group row" style="width:100%;">
+
+			<div class="col-xs-4">
+				<label for="bmcip">ip : </label>
+				<input type="text" class="form-control" id="bmcip" value="10.104.236.44">
+			</div>
+			<div class="col-xs-4">
+				<label for="bmcuname">username : </label>
+				<input type="text" class="form-control" id="bmcuname" value="admin">
+			</div>
+			<div class="col-xs-4">
+				<label for="bmcpasswd">password : </label>
+				<input type="password" class="form-control" id="bmcpasswd" value="Cisco@123">
+			</div>
+		</div>
+		<p1>Target Host</p1>
+		<hr>
+		<div class="form-group row" style="width:100%;">
+			<div class="col-xs-4">
+				<label for="huname">useraname : </label>
+				<input type="text" class="form-control" id="huname" value="root">
+			</div>
+			<div class="col-xs-4">
+				<label for="hpasswd">password : </label>
+				<input type="password" class="form-control" id="hpasswd" value="cis@123co">
+			</div>
+			<div class="col-xs-4">
+				<br/>
+				<button type="button" class="btn btn-primary" onclick="trigger_sanity();" id="trigger_sanity_b">Trigger</button>
+			</div>
+		</div>
+
+		<!--</form> -->
+	</div>
+</div>
+
+<!-- Modal -->
+<div id="logModal" class="modal fade" role="dialog" >
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Log</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+	    	<pre><span id="log"></span></pre>
+	    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

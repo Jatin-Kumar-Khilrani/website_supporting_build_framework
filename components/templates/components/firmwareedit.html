@@ -1,0 +1,132 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+textarea
+{
+    width : 850px !important;
+    height: 100px !important;
+}
+tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    box-sizing: content-box !important;
+    display: inline-block;
+    min-width: 0em !important;
+    padding: 0em 0em !important;
+    margin-left: 0px !important;
+    outline: none !important;
+}
+</style>
+    <script>
+    function firmwareadd() {
+
+    var firmwareName=$('#firmwareName').val();
+    var platform = $('.selectm').val();
+    $.ajax({
+        url: '/components/listfirmware/add/',
+        type: 'post',
+        data: {
+            firmwareName: firmwareName,
+            platform: JSON.stringify(platform),
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listfirmware/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+//return confirm('Are you sure you want to delete this?')
+function firmwareedit(firmwareid) {
+
+    $.ajax({
+        url: '/components/listfirmware/edit/{{ firmwareid }}',
+        type: 'post',
+        data: {
+            firmwares_association :JSON.stringify($('#tblAppendGrid').appendGrid('getAllValue')),
+
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listfirmware/edit/{{ firmwareid }}'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+function firmwaredelete(firmwareid) {
+    $.ajax({
+        url: '/components/listfirmware/delete/',
+        type: 'post',
+        data: {
+            firmwareid: firmwareid,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listfirmware/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+
+$(document).ready(function() {
+
+          $(".selectm").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+          $(".selectmp").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+
+$(function() {
+    $('#tblAppendGrid').appendGrid({
+        caption: 'firmware Associations',
+        captionfirmwaretip: {
+            items: 'td',
+            content: 'firmware Associations',
+            show: {
+                effect: 'fold',
+                delay: 250
+            }
+        },
+        columns: [
+            //{ name: 'firmware', display: 'firmware', ctrlAttr: { maxlength: 10, readonly:true  }},
+            { name: 'component', display: 'Component', type: 'select', ctrlOptions:{{ ctrlOptionsComp|safe}}},
+            { name: 'platform', display: 'Platform', type: 'select' , ctrlOptions:{{ ctrlOptionsPlat|safe}}},
+            { name: 'release', display: 'Release', type: 'select' , value: 'granite_peak', invisible: true, ctrlOptions:{{ ctrlOptionsRel|safe}}}
+        ],
+
+{#        customFooterButtons: [#}
+{#            { uiButton: { icons: { primary: 'ui-icon-disk' }, label: 'Save' }, click: function (evt) { alert('Saved'); }, atTheFront: true },#}
+{#            //{ uiButton: { icons: { primary: 'ui-icon-arrowthickstop-1-s' }, text: false }, btnAttr: { title: 'Download Data' }, click: function (evt) { alert('Download is in process...'); } }#}
+{#        ],#}
+
+        initData: {{initm|safe}},
+
+        hideButtons: {
+	    //remove: true,
+	     insert: true,
+	     moveUp : true,
+	     moveDown : true,
+
+	}
+    });
+});})
+
+
+    </script>
+{% endblock %}
+{% block body_block %}
+<table id="tblAppendGrid"></table>
+    <button type="button" class="btn btn-default" onclick="firmwareedit({{ firmwareid }})">Save</button>
+{% endblock %}

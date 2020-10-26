@@ -1,0 +1,139 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<script type="text/javascript">
+function getname() {
+    var toolname = $('input[type=file]').val().split('\\').pop();
+    $('input[name="toolName"]').val(toolname);
+
+}
+
+$(document).ready(function() {
+
+   $(".select").select2({closeOnSelect: true, tags: true, placeholder:"Type the name"});
+
+   $('#vendorId').on('change', function() { //When we change the vendorid, call the function
+        var vendorId = $(this).val()
+        alert("Need to refresh the page :" + vendorId);
+        $.ajax({
+            url: 'components/addtool/',
+            method: 'POST',
+            data: {
+                vendorId: $(this).val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(data)
+            {
+                alert("output returned :"+data.data)
+            }
+
+        });
+        //window.location.href = "/components/addtool/"+vendorId;
+    });
+
+   $('#addtool').bootstrapValidator({
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            document: {
+                validators: {
+                    notEmpty: {
+                        message: 'This field is required'
+                    },
+                }
+            },
+            toolName: {
+                validators: {
+                    notEmpty: {
+                        message: 'This field is required'
+                    },
+                }
+            }
+        }
+    });
+});
+    </script>
+{% endblock %}
+{% block body_block %}
+<div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Add/Edit Tool</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/toollist/" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+
+<hr>
+    <form action="/components/addtool/{{tool.pk}}" method="post" enctype="multipart/form-data" id="addtool">
+    {% csrf_token %}
+
+        <div class="form-group row">
+        	<div class="col-xs-6">
+                <label for="document">Upload the tool here</label>
+                <input class="form-control" name="document" type="file" onchange="getname()">
+            </div>
+            <div class="col-xs-6">
+                <label for="toolName">Tool Name</label>
+                <input class="form-control" placeholder="Tool Name" name="toolName" type="text" value="{{tool.toolName}}">
+            </div>
+            <div class="col-xs-6">
+                <label for="version">Version</label>
+                <input class="form-control" placeholder="" name="version" type="text" value="{{tool.version}}">
+            </div>
+        </div>
+
+        <br/>
+        <p2>Directory Structure</p2>
+        <hr>
+        <br/>
+        <div class="form-group row" style="width:95%;">
+          <div class="col-xs-2">
+            <label for="vendorId">Vendor Id</label>
+              <select class="select" id=vendorId style="width:200px;" name="vendorId">
+                <option disabled selected value> -- Select vendor-id -- </option>
+                    {% for vendor in allVendors %}
+
+                    <option value="{{ vendor }}">{{ vendor }}</option>
+
+                    {% endfor %}
+              </select>
+          </div>
+          <div class="col-xs-2">
+            <label for="deviceId">Device Id</label>
+            <select class="select" id=deviceId style="width:200px;" name="deviceId">
+                <option disabled selected value> -- Select device-id -- </option>
+                    {% for component in allComponents %}
+                    <option value="{{ component.deviceId }}">{{ component.deviceId }}</option>
+                    {% endfor %}
+            </select>
+          </div>
+          <div class="col-xs-2">
+            <label for="subVendorId">Sub Vendor Id</label>
+            <select class="select" id=subVendorId style="width:200px;" name="subVendorId">
+                <option disabled selected value> -- Select sub-vendor-id -- </option>
+                    {% for component in allComponents %}
+                    <option value="{{ component.subVendorId }}">{{ component.subVendorId }}</option>
+                    {% endfor %}
+            </select>
+          </div>
+          <div class="col-xs-2">
+            <label for="subDeviceId">Sub Device Id</label>
+            <select class="select" id=subDeviceId style="width:200px;" name="subDeviceId">
+                <option disabled selected value> -- Select sub-device-id -- </option>
+                    {% for component in allComponents %}
+                    <option value="{{ component.subDeviceId }}">{{ component.subDeviceId }}</option>
+                    {% endfor %}
+            </select>
+          </div>
+        </div>
+<input type="submit" class="btn btn-default" value="Add/Update Tool" />
+<a href="/components/toollist/" class="btn btn-default">Cancel</a>
+</form>
+
+{% endblock %}
+
+
+
+
+

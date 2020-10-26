@@ -1,0 +1,122 @@
+{% extends 'components/base.html' %}
+{% block head %}
+    <style>
+    textarea
+{
+    width : 800px !important;
+    height: 100px !important;
+}
+    </style>
+        <script>
+$(document).ready(function() {
+    $(".select").select2();
+
+
+    $('#updateForm').bootstrapValidator({
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            hookName: {
+                validators: {
+                    notEmpty: {
+                        message: 'The name of Hook is required'
+                    },
+                    stringLength: {
+                        min: 4,
+                        max: 30,
+                        message: 'The name must be more than 4 and less than 30 characters long'
+                    },
+                    regexp: {
+                        regexp: /^[a-zA-Z0-9_\.]+$/,
+                        message: 'The name can only consist of alphabetical, number, dot and underscore'
+                    }
+                }
+            },
+            preHook: {
+                validators: {
+                    notEmpty: {
+                        message: 'The prehook code is required'
+                    }
+                }
+            },
+            platform: {
+                validators: {
+                    notEmpty: {
+                        message: 'The platform is required'
+                    }
+                }
+            },
+
+            inHook: {
+                validators: {
+                    notEmpty: {
+                        message: 'The inhook code is required'
+                    }
+                }
+            },
+
+            postHook: {
+                validators: {
+                    notEmpty: {
+                        message: 'The posthook code is required'
+                    }
+                }
+            }
+        }
+    });
+
+});
+    </script>
+
+{% endblock %}
+{% block body_block %}
+<div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Update Hook</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/hookupdt/{{componentId}}/" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+<hr>
+<form id ="updateForm" action="/components/hookupdt/{{componentId}}/{{ updateHookId }}" method="post">
+    {% csrf_token %}
+<div class="container">
+    <!--<p>Update File Name:     update_{{hook.componentId}}.py</p>-->
+
+             <div class="form-group row">
+          <div class="col-xs-6">
+              <div class="input-group">
+              <span class="input-group-addon">update_</span>
+                <input type="text" name ="hookName" class="form-control" value="{{ hook.hookName|slice:"7:" }}"placeholder="Type the name of the Update Hook" aria-describedby="basic-addon1">
+                </div>
+          </div>
+<div class="col-xs-6">
+       <select class="select" style="width:200px;"  name="platform">
+    <option disabled selected value> -- Select a Platform -- </option>
+        {% for plat in component.platform.all %}
+            {%  if plat.platformName|stringformat:"s" == hook.platform|stringformat:"s" %}
+                <option value="{{plat.platformName}}" selected="selected">{{ plat.platformName }}</option>
+            {% else %}
+                <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+          </div>
+</div>
+    <div class="form-group">
+    <label for="Pre Hook">Pre Hook:</label>
+    <textarea class="form-control" rows="4" cols="500" style="width: 800px; height: 120px;" name="preHook">{{hook.preHook}}</textarea>
+  </div>
+    <div class="form-group">
+    <label for="In Hook">In Hook:</label>
+    <textarea class="form-control" rows="4" cols="500" style="width: 800px; height: 120px;" name="inHook">{{hook.inHook}}</textarea>
+  </div>
+    <div class="form-group">
+    <label for="Post Hook">Post Hook:</label>
+    <textarea class="form-control" rows="4" cols="500" style="width: 800px; height: 120px;" name="postHook">{{hook.postHook}}</textarea>
+  </div>
+    <input type="submit" name="modify" class="btn btn-default" value="Save Hook" />
+</form>
+{% endblock %}

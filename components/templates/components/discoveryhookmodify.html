@@ -1,0 +1,144 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+textarea
+{
+    width : 850px !important;
+    height: 100px !important;
+}
+
+</style>
+    <script>
+$(document).ready(function() {
+    $(".select").select2({});
+	
+    $(".selectm").select2({closeOnSelect: false, tags: true, placeholder:"Select component"});
+
+    $('#discoveryForm').bootstrapValidator({
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            dhookName: {
+                validators: {
+                    notEmpty: {
+                        message: 'The name of Hook is required'
+                    },
+                    stringLength: {
+                        min: 4,
+                        max: 30,
+                        message: 'The name must be more than 4 and less than 30 characters long'
+                    },
+                    regexp: {
+                        regexp: /^[a-zA-Z0-9_\.]+$/,
+                        message: 'The name can only consist of alphabetical, number, dot and underscore'
+                    }
+                }
+            },
+            dpreHook: {
+                validators: {
+                    notEmpty: {
+                        message: 'The prehook code is required'
+                    }
+                }
+            },
+            dplatform: {
+                validators: {
+                    notEmpty: {
+                        message: 'The platform is required'
+                    }
+                }
+            },
+
+
+            dinHook: {
+                validators: {
+                    notEmpty: {
+                        message: 'The inhook code is required'
+                    }
+                }
+            },
+
+            dpostHook: {
+                validators: {
+                    notEmpty: {
+                        message: 'The posthook code is required'
+                    }
+                }
+            }
+        }
+    });
+
+
+});
+    </script>
+{% endblock %}
+{% block body_block %}
+<div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Add/Edit Hook</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/hookdisc/" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+<hr>
+
+<form id ="discoveryForm" action="/components/hookdisc/{{ discoveryHookId }}" method="post">
+    {% csrf_token %}
+
+    <!--<p>Discovery File Name:     discovery_{{dhook.dcomponentId}}.py</p>-->
+	<div class="form-group row">
+      <div class="col-xs-6">
+          <div class="input-group">
+          <span class="input-group-addon">Hook Name : </span>
+              <input type="text" name ="dhookName" class="form-control" placeholder="Type the name of the Discovery Hook" aria-describedby="basic-addon1" value="{{ dhook.dhookName}}">
+            </div>
+      </div>
+      <!-- <div class="col-xs-6">
+	    <select class="select" style="width:200px;"  name="dplatform">
+	    <option disabled selected value> -- Select a Platform -- </option>
+	        {% for plat in component.platform.all %}
+	            {%  if plat.platformName|stringformat:"s" == dhook.dplatform|stringformat:"s" %}
+	                <option value="{{plat.platformName}}" selected>{{ plat.platformName }}</option>
+	            {% else %}
+	                <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+	            {% endif %}
+	        {% endfor %}
+	    </select>
+	</div> -->
+</div>
+ 	<div class="form-group row">
+         <div class="col-xs-8">
+	        <label for="platform">Components</label>
+	        <select class="selectm" multiple= "multiple" name="components"  style="width:650px;">
+		        {% for comp in all_component %}
+		        	{%  if comp.uniqueName in sel_components %}
+		                <option value="{{ comp.uniqueName }}" selected>{{ comp.uniqueName }}</option>
+		            {% else %}
+		                <option value="{{ comp.uniqueName }}">{{ comp.uniqueName }}</option>
+		            {% endif %}
+		        {% endfor %}
+	    	</select>
+      	</div>
+    </div>
+    <div class='well'><h4>Platforms : </h4>
+    {% for plat in component.platform.all %}
+	            {{ plat }} | 
+	        {% endfor %}
+    </div>
+    <div class="form-group">
+        <label for="Pre Hook">Pre Hook:</label>
+        <textarea class="form-control" rows="10" cols="500" style="min-width: 800px; min-height: 350px;" name="dpreHook">{{hook}}</textarea>
+    </div>
+    <!-- <div class="form-group">
+    <label for="In Hook">In Hook:</label>
+    <textarea class="form-control" rows="4" cols="500" style="width: 800px; height: 120px;" name="dinHook">{{dhook.dinHook}}</textarea>
+  </div>
+    <div class="form-group">
+    <label for="Post Hook">Post Hook:</label>
+    <textarea class="form-control" rows="4" cols="500" style="width: 800px; height: 120px;" name="dpostHook">{{dhook.dpostHook}}</textarea>
+  </div> -->
+    <input type="submit" name="modify" class="btn btn-primary" value="Save Hook" />
+</form>
+{% endblock %}

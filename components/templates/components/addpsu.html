@@ -1,0 +1,320 @@
+{% extends 'components/base.html' %}
+{% block head %}
+  <script type="text/javascript">
+        $(document).ready(function(){
+          $(".select").select2();
+
+          $(".selectm").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+
+          $(".select").change(function() {
+                var a = $(".select").val();
+                var b = a.split("|");
+                $('input[name="uniqueName"]').val(b[0]);
+                $('input[name="description"]').val(b[1]);
+                $('input[name="packageVersion"]').val(b[2]);
+		var k = b[3].split(",");
+                alert(k);
+                $(".selectm").val(k).trigger("change");
+                $('input[name="vendorString"]').val(b[4]);
+                <!-- $('input[name="verifyApi"]').val(b[5]); -->
+            });
+
+          $('#addComponent').bootstrapValidator({
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    vendorid: {
+                        validators: {
+                            row: '.col-xs-2',
+                            notEmpty: {
+                                message: 'The PSU_MODEL_TYPE is required'
+                            },
+                            stringLength: {
+                                min: 4,
+                                max: 4,
+                                message: 'The Vendor Id must be 4 characters long'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9]+$/,
+                                message: 'The Vendor Id can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    deviceId: {
+                        validators: {
+                            row: '.col-xs-2',
+                            notEmpty: {
+                                message: 'The Device Id is required'
+                            },
+                            stringLength: {
+                                min: 4,
+                                max: 4,
+                                message: 'The Device Id must be 4 characters long'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9]+$/,
+                                message: 'The Device Id can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    subVendorId: {
+                        row: '.col-xs-2',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Sub-Vendor Id is required'
+                            },
+                            stringLength: {
+                                min: 4,
+                                max: 4,
+                                message: 'The Sub-Vendor Id must be 4 characters long'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9]+$/,
+                                message: 'The Sub-Vendor Id can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    subDeviceId: {
+                        row: '.col-xs-2',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Sub-Device Id is required'
+                            },
+                            stringLength: {
+                                min: 4,
+                                max: 4,
+                                message: 'The Sub-Device Id must be 4 characters long'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9]+$/,
+                                message: 'The Sub-Device Id can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    psu_model_type: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The PSU-MODEL is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The PSU-MODEL can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    psu_description: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The PSU-DESCRIPTION is required'
+                            }
+                        }
+                    },
+                    psu_vendor_name: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The PSU-VENDOR-NAME is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The PSU-VENDOR-NAME can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    psu_part_number: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The PSU-PART-NUMBER is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The PSU-PART-NUMBER can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    max_power_wattage: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The MAX-POWER-WATTAGE is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The MAX-POWER-WATTAGE can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    min_correction_time: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The MIN-CORRECTION-TIME is required'
+                            },
+                            regexp: {
+                                regexp: /^[a-zA-Z0-9-_]+$/,
+                                message: 'The MIN-CORRECTION-TIME can only be alphabetical or numeric'
+                            }
+                        }
+                    },
+                    description: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The description is required'
+                            }
+
+                        }
+                    },
+                    platform: {
+                        row: '.col-xs-8',
+                        validators: {
+                            notEmpty: {
+                                message: 'The platform is required'
+                            },
+                        }
+                    }
+                }
+            });
+
+        });
+
+
+    </script>
+{% endblock %}
+{% block body_block %}
+<div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Add a New PSU Component</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/psuindex/" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+<hr>
+
+<!--
+<div style=" clear: right; float: right; ">
+<select class="select" style="width:200px;" >
+    <option disabled selected value> -- Select a Template -- </option>
+        {% for component in allComponents %}
+        <option value="{{ component.uniqueName }}|{{ component.description }}|{{ component.packageVersion }}|{%  for l in component.platform.all %}{{l.platformName}},{% endfor %}|{{ component.vendorString }}|{{ component.verifyApi }}">{{ component.description }}</option>
+        {% endfor %}
+    </select>
+</div>
+-->
+
+
+    <form id="addComponent" action="/components/addpsu/" method="post">
+    {% csrf_token %}
+    <!--<div class="form-group row" style="width:95%;">
+      <div class="col-xs-2">
+        <label for="vendorId">Vendor Id</label>
+        <input class="form-control" placeholder="Vendor Id" name="vendorId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="deviceId">Device Id</label>
+        <input class="form-control" placeholder="Device Id" name="deviceId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="subVendorId">Sub Vendor Id</label>
+        <input class="form-control" placeholder="Sub Vendor Id" name="subVendorId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="subDeviceId">Sub Device Id</label>
+        <input class="form-control" placeholder="Sub Device Id" name="subDeviceId" type="text">
+      </div>
+    </div> -->
+
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="psu_model_type">PSU-MODEL type</label>
+          <input class="form-control"  placeholder="PSU-MODEL type"  name="psu_model_type" type="text">
+        </div>
+
+        <div class="col-xs-4">
+          <label for="psu_description">PSU-DESCRIPTION</label>
+          <input class="form-control"  placeholder="PSU-DESCRIPTION"  name="psu_description" type="text">
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="psu_vendor_name">PSU-VENDOR-NAME</label>
+          <input class="form-control"  placeholder="PSU-VENDOR-NAME"  name="psu_vendor_name" type="text">
+        </div>
+
+        <div class="col-xs-4">
+          <label for="psu_part_number">PSU-PART-NUMBER</label>
+          <input class="form-control"  placeholder="PSU-PART-NUMBER"  name="psu_part_number" type="text">
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="max_power_wattage">MAX-POWER-WATTAGE</label>
+          <input class="form-control"  placeholder="MAX-POWER-WATTAGE"  name="max_power_wattage" type="text">
+        </div>
+
+        <div class="col-xs-4">
+          <label for="min_correction_time">MIN-CORRECTION-TIME</label>
+          <input class="form-control"  placeholder="MIN-CORRECTION-TIME"  name="min_correction_time" type="text">
+        </div>
+    </div>
+
+<!--
+      <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="uniqueName">Uniqiue Name</label>
+        <input class="form-control" placeholder="Unique Id" name="uniqueName" type="text">
+      </div>
+         <div class="col-xs-4">
+        <label for="description">Description</label>
+        <input class="form-control" placeholder="Component" name="description" type="text">
+      </div>
+    </div>
+     <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="packageVersion">Package Version</label>
+        <input class="form-control"  placeholder="Package Version"  name="packageVersion" type="text">
+      </div>
+-->
+	<!--
+         <div class="col-xs-4">
+		<a href="allcomponents">allcomponents</a> -->
+        <!-- <label for="verifyApi">Verify</label> -->
+        <!-- <input class="form-control" placeholder="Verify api" name="verifyApi" type="text"> -->
+      <!--</div> -->
+<!--    
+      </div>
+        <div class="form-group row">
+        <div class="col-xs-8">
+        <label for="vendorString">Vendor</label>
+        <input class="form-control" placeholder="Vendor" name="vendorString" type="text">
+      </div>
+      </div>
+-->
+        <div class="form-group row">
+         <div class="col-xs-8">
+        <label for="platform">Platforms</label>
+             <select class="selectm" multiple= "multiple" name="platform" style="width:672px;" >
+        {% for plat in allPlatforms %}
+        <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+        {% endfor %}
+    </select>
+      </div>
+    </div>
+           <input type="submit" class="btn btn-default" value="Add PSU" />
+    <!--<p><LABEL for="exists">Exists:</LABEL><input type="checkbox" placeholder="Exists" name="exists" checked></input></p>-->
+</form>
+
+{% endblock %}
+
+
+
+
+

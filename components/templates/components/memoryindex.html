@@ -1,0 +1,169 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+    dt, dd {
+  line-height: 20px !important;
+  /* Keep this the same as line-height */
+  min-height: 20px !important;
+ }
+    .component
+    {
+        font-size: 13px !important;
+    }
+
+
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    box-sizing: content-box !important;
+    display: inline-block;
+    min-width: 0em !important;
+    padding: 0em 0em !important;
+    margin-left: 0px !important;
+    outline: none !important;
+}
+</style>
+
+    <script>
+$(document).ready(function() {
+       $('[data-toggle="popover"]').popover();
+    // Setup - add a text input to each footer cell
+    $('.exam').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+    } );
+
+    // DataTable
+    var table = $('#example').DataTable({select:true});
+
+
+    // Apply the search
+    table.columns().every( function () {
+        var that = this;
+
+        $( 'input', this.footer() ).on( 'keyup change', function () {
+            if ( that.search() !== this.value ) {
+                that
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+} );
+</script>
+{% endblock %}
+
+{% block body_block %}
+
+{% if allMemory %}
+    <div class="row">
+        <div class="col-xs-5 block" ><h3>Memory</h3></div>
+          <div class="col-xs-5 col-xs-push-2 block" >
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style="float: right; clear: both;" href="/components/addmemory/"><span class="glyphicon glyphicon-plus"></span> Add Memory</a>
+          </div>
+    </div>
+
+    <hr style="margin: 0px !important;">
+    <br>
+    <!--<div class="form-group pull-right">
+    <input type="text" class="search form-control" placeholder="Search the table">
+</div>-->
+        <span class="counter pull-right"></span>
+    <table id="example" class="display component table table-striped" cellspacing="0" width="100%">
+<!--<table class="table table-hover  results table-striped component">
+    -->
+    <thead><tr>
+        <th>Memory Vendor</th>
+        <th>Memory Name</th>
+        <th>Platforms</th>
+        <th>Memory Details</th>
+    </tr>
+    </thead>
+      <tfoot><tr>
+        <th class="exam input-sm">Memory Vendor</th>
+        <th class="exam input-sm">Memory Name</th>
+        <th class="exam input-sm">Platforms</th>
+        <th>Memory Details</th>
+    </tr>
+    </tfoot>
+        <tbody>
+    {% for memory in allMemory %}
+
+    <tr>
+        <td>{{ memory.vendor }}</td>
+        <td>{{ memory.name }}</td>
+        <td><a href="#" data-toggle="popover" data-trigger="hover"  data-html="true" data-content="<ul style='list-style: none;  padding-left:0;'><li></li>{%  for l in memory.platform.all %}<li>{{l.platformName}}</li>{% endfor %}</ul>">Platforms</a></td>
+        <td><a data-toggle="modal" data-target="#memoryModal{{ memory.pk }}"><span class="glyphicon glyphicon-eye-open" ></span>MEMORY</a></td>
+
+        <!--
+        <td><a data-toggle="modal" data-target="#componentModal{{ component.pk }}"><span class="glyphicon glyphicon-eye-open" ></span>Component</a></td>
+        <td><a href="/components/hookdisc/{{ component.id }}"><span class="glyphicon glyphicon-pencil" >Add/Edit Hook</span></a></td> -->
+        <!-- <td><a href="/components/hookupdt/{{ component.id }}"><span class="glyphicon glyphicon-pencil"></span>Edit</a></td> -->
+    </tr>
+
+
+<!-- Modal -->
+    <div id="memoryModal{{ memory.pk }}" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Memory Information</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group"  style="text-align: center; ">
+                        <dl class="dl-horizontal text-left">
+                            <dt>VENDOR</dt>
+                            <dd>{{ memory.vendor }}</dd>
+                            <dt>MODEL</dt>
+                            <dd>{{ memory.model }}</dd>
+                            <dt>REVISION</dt>
+                            <dd>{{ memory.revision }}</dd>
+                            <dt>NAME</dt>
+                            <dd>{{ memory.name }}</dd>
+                            <dt>PID</dt>
+                            <dd>{{ memory.pid }}</dd>
+                            <dt>Version Id</dt>
+                            <dd>{{ memory.vid }}</dd>
+                            <dt>PART NUMBER</dt>
+                            <dd>{{ memory.part_number }}</dd>
+                            <dt>SKU ID</dt>
+                            <dd>{{ memory.sku_id }}</dd>
+                            <dt>OEM</dt>
+                            <dd>{{ memory.oem }}</dd>
+                            <dt>OEM PART NUMBER</dt>
+                            <dd>{{ memory.oem_part_number }}</dd>
+                            <dt>Platform</dt>
+                            <dd><ul style="list-style: none; padding-left:0;">{%  for l in memory.platform.all %}
+                                <li>{{ l.platformName}}</li>
+                            {% endfor %}</ul>
+                                </dd>
+                        </dl>
+                     </div>
+                    <div class="modal-footer">
+                        <a href="/components/modifymemory/{{ memory.id }}"><button type="button" class="btn btn-primary">Edit Data</button></a>
+                        <a href="/components/deletememory/{{ memory.id }}"><button type="button" class="btn btn-primary" onclick="return confirm('Are you sure you want to delete this?')">Delete Data</button></a>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+    </tbody>
+    </table>
+    <!-- <a href="{% url 'addmemory' %}"><button type="button" class="btn btn-default">Add New Memory</button></a>  -->
+{% else %}
+<div class="row">
+        <div class="col-xs-5 block" ><h3>Sorry you don't have any components</h3></div>
+
+          <div class="col-xs-5 col-xs-push-2 block" >
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style="float: right; clear: both;" href="{% url 'addmemory' %}"><span class="glyphicon glyphicon-plus"></span> Add Memory</a>
+          </div>
+
+</div>
+{% endif %}
+{% endblock %}

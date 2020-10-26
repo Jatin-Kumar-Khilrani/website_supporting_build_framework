@@ -1,0 +1,50 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+ 
+</style>
+
+<script>
+
+</script>
+{% endblock %}
+
+{% block body_block %}
+    <div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Hooks</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" >
+    <a style="float: right; clear: both;" href="/components/hookdisc/">
+    <span class="glyphicon glyphicon-plus"></span>Add Discovery Hook</a>
+</div>
+</div>
+
+
+<hr>
+<table class="table table-hover" >
+   <thead>
+     <tr>
+       <th>Hook Name</th>
+       <th>Component</th>
+       <th>Platform</th>
+     </tr>
+   </thead>
+   <tbody>
+     {% for dis in discovery_hook %}
+       	  <tr>
+	        <td><a href="/components/hookdisc/{{ dis.id }}"><span class="glyphicon glyphicon-pencil" >{{dis.dhookName}}</span></a></td>
+	        <td>
+	        	<ul style="list-style: none; padding-left:0;">
+                    <li>{{dis.dcomp.uniqueName}}</li>
+                </ul>
+	        </td>
+	        <td>
+	        	<ul style="list-style: none; padding-left:0;">{%  for l in dis.dcomp.platform.all %}
+                    <li>{{ l.platformName}}</li>
+                {% endfor %}</ul>
+            </td>
+	      </tr>
+     {% endfor %}
+   </tbody>
+</table>
+{% endblock %}

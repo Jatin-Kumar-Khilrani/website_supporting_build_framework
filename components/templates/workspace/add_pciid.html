@@ -1,0 +1,39 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+
+</style>
+    <script type="text/javascript">
+	function getname() {
+    	var toolname = $('input[type=file]').val().split('\\').pop();
+    	$('input[name="toolName"]').val(toolname);
+	}
+    </script>
+{% endblock %}
+{% block body_block %}
+<div class="well" style="background: white;">
+	<div>
+		<form name="new_release" action="/workspace/add_release/add/" method="POST" role="form" >
+		<table class="table">{% csrf_token %}
+		    <tbody>
+				<tr>
+					<td>
+						<label for="document">Upload the PCI-SIG id file here</label>
+						<input class="form-control" name="document" type="file" onchange="getname()">
+					</td>
+					<td>
+						<label for="toolName">PCI-SIG file Name</label>
+						<input class="form-control" placeholder="Tool Name" name="toolName" type="text" value="{{tool.toolName}}">
+					</td>
+					<td>
+						<br/>
+						<input type="submit" class="btn btn-default" value="Add/Update PCI ID" />
+					</td>
+				</tr>
+		    </tbody>
+		  </table>
+		  </form>
+	</div>
+</div>
+
+{% endblock %}

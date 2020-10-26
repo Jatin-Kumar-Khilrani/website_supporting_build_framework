@@ -1,0 +1,278 @@
+{% extends 'components/home_base.html' %}
+{% block head %}
+
+
+<style>
+.center-div
+{
+  position: absolute;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 400px;
+  height: 250px;
+  background-color: white;
+  border-radius: 3px;
+}
+</style>
+<script>
+function create_ws(){
+	$.blockUI({ message: $('#spinner') });
+	//alert($("#add_ws").serialize())
+	$.ajax({
+	     url: "/workspace/add_ws/",
+	     type: 'post',
+	     data:{
+	    	 release : $("#release").val(),
+    		 ws_name : $("#ws_name").val(),
+    		 csrfmiddlewaretoken: '{{ csrf_token }}'
+	     },
+	     success: function(response){
+	    	 //alert(response.status);
+	    	if (response.status==false){
+	    		$.unblockUI();
+		    	 alert(response.msg);
+	    		return;
+	    	}
+	    	else{
+	    		 $.unblockUI();
+		    	 alert(response.msg);
+		    	 $('#create').modal('hide');
+		    	 window.location = "/components/index/"+response.ws_name+"/"+response.release+"/";
+	    	}
+	    	
+	     }
+	     });
+	 return false;
+}
+
+function delete_ws(release,ws_name){
+	$.blockUI({ message: $('#spinner_del') });
+	$.ajax({
+	     url: "/workspace/delete_ws/",
+	     type: 'post',
+	     data:{
+	    	 release : release,
+    		 ws_name : ws_name,
+    		 csrfmiddlewaretoken: '{{ csrf_token }}'
+	     },
+	     success: function(response){
+	    		$.unblockUI();
+		    	 alert(response.msg);
+		    	 location.reload();
+	    		return;
+	     }
+	 });
+	 return false;
+}
+var g_ws_name;
+var g_release;
+
+function move_ws_kick(release,ws_name){
+
+	alert("r u sure u want to move this "+ws_name);
+	g_ws_name = ws_name;
+	g_release = release;
+
+	$("#workspace").modal("hide");
+	$("#move").modal("show");
+	$("#move_ws_name").val(ws_name);
+	$("#move_release").val(release);
+
+
+	 return false;
+}
+
+function move_ws(){
+	$.blockUI({ message: $('#spinner_move') });
+	//alert($("#add_ws").serialize())
+	$.ajax({
+	     url: "/workspace/move_ws/",
+	     type: 'post',
+	     data:{
+	    	 release : $("#move_release").val(),
+    		 ws_name : $("#move_ws_name").val(),
+			 id_ip : $("#id_ip").val(),
+			 id_path : $("#id_path").val(),
+			 id_username : $("#id_username").val(),
+			 id_password : $("#id_password").val(),
+
+    		 csrfmiddlewaretoken: '{{ csrf_token }}'
+	     },
+	     success: function(response){
+	    	 //alert(response.status);
+	    	if (response.status==false){
+	    		$.unblockUI();
+		    	 alert(response.msg);
+	    		return;
+	    	}
+	    	else{
+	    		 $.unblockUI();
+		    	 alert(response.msg);
+		    	 $('#move').modal('hide');
+		    	 location.reload();
+	    	}
+
+	     }
+	     });
+	 return false;
+}
+</script>
+{% endblock %}
+{% block body_block %}
+<div class="center-div">
+    	<div class="well" style="background: white; text-align: center;">
+
+	        	<div class="form-group" style=" margin: 10px;" >
+				  <button  class="btn btn-primary btn-lg" data-toggle="modal" data-target="#create">CREATE WORKSPACE</button>
+				</div>
+					<div class="form-group" style=" margin: 10px;"  data-toggle="modal" data-target="#workspace">
+					  <button  class="btn btn-primary btn-lg">WORKSPACE</button>
+					</div>
+    	</div>
+</div>
+
+<!-- Modal -->
+<div id="move" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Move Workspace</h4>
+      </div>
+      <div class="modal-body">
+        	<div class="well" style="background: white; ">
+	    		<form  class="form-horizontal" id="add_ws" method="POST" role="form" >
+					{% csrf_token %}
+		        	<div class="form-group" style=" margin: 3px;" >
+					  <label for="usr">Workspace Name :</label>
+					  <input type="text" class="form-control" id="move_ws_name" >
+					</div>
+						<div class="form-group" style=" margin: 3px;">
+						  <label for="sel1">Release </label>
+						  <select class="form-control" id="move_release">
+						    {% for rel in release_list %}
+						    <option>{{rel}}</option>
+						    {% endfor %}
+						  </select>
+						</div>
+					<div class="form-group" style=" margin: 3px;" >
+					  <label for="usr">IP :</label>
+					  <input type="text" class="form-control" id="id_ip" >
+					</div>
+					<div class="form-group" style=" margin: 3px;" >
+					  <label for="usr">Path :</label>
+					  <input type="text" class="form-control" id="id_path" >
+					</div>
+					<div class="form-group" style=" margin: 3px;" >
+					  <label for="usr">User Name :</label>
+					  <input type="text" class="form-control" id="id_username" >
+					</div>
+					<div class="form-group" style=" margin: 3px;" >
+					  <label for="usr">Password :</label>
+					  <input type="password" class="form-control" id="id_password" >
+					</div>
+			  	</form>
+	    	</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="move_ws();">Move</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="create" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Create Workspace</h4>
+      </div>
+      <div class="modal-body">
+        	<div class="well" style="background: white; ">
+	    		<form  class="form-horizontal" id="add_ws" method="POST" role="form" >
+					{% csrf_token %}
+		        	<div class="form-group" style=" margin: 3px;" >
+					  <label for="usr">Workspace Name :</label>
+					  <input type="text" class="form-control" id="ws_name" >
+					</div>
+						<div class="form-group" style=" margin: 3px;">
+						  <label for="sel1">Release </label>
+						  <select class="form-control" id="release">
+						    {% for rel in release_list %}
+						    <option>{{rel}}</option>
+						    {% endfor %}
+						  </select>
+						</div>
+			  	</form>
+	    	</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="create_ws();">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="workspace" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Select Workspace</h4>
+      </div>
+      <div class="modal-body">
+        	<div class="well" >
+				<table class="table">
+				    <thead>
+				      <tr>
+				        <th>Workspace</th>
+				        <th>Release</th>
+				        <th></th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				    {% for ws in ws_list %}
+				      <tr>
+				        <td><a href="/workspace/r_c/{{ws.ws_name}}/{{ws.release}}/">{{ws.ws_name}}</a></td>
+				        <td>{{ws.release}}</td>
+				        <td><a href="javascript:delete_ws('{{ws.release}}','{{ws.ws_name}}');">Delete</a></td>
+						<td><a href="javascript:move_ws_kick('{{ws.release}}','{{ws.ws_name}}');" id="id_move_kick">MOVE</button></td>
+				      </tr>
+				      {% endfor %}
+			    </tbody>
+			  </table>
+			</div>
+	  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  <!-- data-dismiss="modal" data-toggle="modal" data-target="#create"-->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="spinner" style="display:none;"> 
+<i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i> &nbsp;Checking out from svn. This will take few minutes.
+</div>
+<div id="spinner_del" style="display:none;"> 
+<i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i> &nbsp;Deleting Workspace...
+</div>
+<div id="spinner_move" style="display:none;">
+<i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i> &nbsp;Moving entire workspace. This will take few minutes.
+</div>
+{% endblock %}

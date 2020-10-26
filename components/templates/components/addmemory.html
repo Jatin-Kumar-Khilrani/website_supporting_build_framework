@@ -1,0 +1,278 @@
+{% extends 'components/base.html' %}
+{% block head %}
+  <script type="text/javascript">
+        $(document).ready(function(){
+          $(".select").select2();
+
+          $(".selectm").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+
+          $(".select").change(function() {
+                var a = $(".select").val();
+                var b = a.split("|");
+                $('input[name="uniqueName"]').val(b[0]);
+                $('input[name="description"]').val(b[1]);
+                $('input[name="packageVersion"]').val(b[2]);
+		var k = b[3].split(",");
+                alert(k);
+                $(".selectm").val(k).trigger("change");
+                $('input[name="vendorString"]').val(b[4]);
+                <!-- $('input[name="verifyApi"]').val(b[5]); -->
+            });
+
+          $('#addComponent').bootstrapValidator({
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    vendor: {
+                        validators: {
+                            row: '.col-xs-4',
+                            notEmpty: {
+                                message: 'The vendor string is required'
+                            }
+                        }
+                    },
+                    model: {
+                        validators: {
+                            row: '.col-xs-4',
+                            notEmpty: {
+                                message: 'The model is required'
+                            }
+                        }
+                    },
+                    revision: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The revision is required'
+                            }
+                        }
+                    },
+                    name: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The name is required'
+                            }
+                        }
+                    },
+                    pid: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The pid is required'
+                            }
+                        }
+                    },
+                    vid: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The version id is required'
+                            }
+                        }
+                    },
+                    part_number: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The part_number is required'
+                            }
+                        }
+                    },
+                    sku_id: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The sku_id is required'
+                            }
+                        }
+                    },
+                    oem: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The oem_name is required'
+                            }
+                        }
+                    },
+                    oem_part_number: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The oem_part_number is required'
+                            }
+                        }
+                    },
+                    platform: {
+                        row: '.col-xs-8',
+                        validators: {
+                            notEmpty: {
+                                message: 'The platform is required'
+                            },
+                        }
+                    }
+                }
+            });
+
+        });
+
+
+    </script>
+{% endblock %}
+{% block body_block %}
+<div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Add a New Memory Component</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/index/{{request.session.ws_name}}/{{request.session.release}}" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+<hr>
+
+<!--
+<div style=" clear: right; float: right; ">
+<select class="select" style="width:200px;" >
+    <option disabled selected value> -- Select a Template -- </option>
+        {% for component in allComponents %}
+        <option value="{{ component.uniqueName }}|{{ component.description }}|{{ component.packageVersion }}|{%  for l in component.platform.all %}{{l.platformName}},{% endfor %}|{{ component.vendorString }}|{{ component.verifyApi }}">{{ component.description }}</option>
+        {% endfor %}
+    </select>
+</div>
+-->
+
+
+    <form id="addComponent" action="/components/addmemory/" method="post">
+    {% csrf_token %}
+    <!--<div class="form-group row" style="width:95%;">
+      <div class="col-xs-2">
+        <label for="vendorId">Vendor Id</label>
+        <input class="form-control" placeholder="Vendor Id" name="vendorId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="deviceId">Device Id</label>
+        <input class="form-control" placeholder="Device Id" name="deviceId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="subVendorId">Sub Vendor Id</label>
+        <input class="form-control" placeholder="Sub Vendor Id" name="subVendorId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="subDeviceId">Sub Device Id</label>
+        <input class="form-control" placeholder="Sub Device Id" name="subDeviceId" type="text">
+      </div>
+    </div> -->
+
+     <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="vendor">Vendor</label>
+          <input class="form-control"  placeholder="Vendor"  name="vendor" type="text">
+        </div>
+
+        <div class="col-xs-4">
+          <label for="model">Model</label>
+          <input class="form-control"  placeholder="Model"  name="model" type="text">
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="revision">Revision</label>
+          <input class="form-control"  placeholder="Revision"  name="revision" type="text">
+        </div>
+
+        <div class="col-xs-4">
+          <label for="name">Name</label>
+          <input class="form-control"  placeholder="Name"  name="name" type="text">
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="pid">PID</label>
+          <input class="form-control"  placeholder="PID"  name="pid" type="text">
+        </div>
+
+        <div class="col-xs-4">
+          <label for="vid">Version Id</label>
+          <input class="form-control"  placeholder="Version Id"  name="vid" type="text">
+        </div>
+    </div>
+
+        <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="part_number">PART NUMBER</label>
+          <input class="form-control"  placeholder="PART NUMBER"  name="part_number" type="text">
+        </div>
+
+        <div class="col-xs-4">
+          <label for="sku_id">SKU ID</label>
+          <input class="form-control"  placeholder="SKU ID"  name="sku_id" type="text">
+        </div>
+    </div>
+
+        <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="oem">OEM Name</label>
+          <input class="form-control"  placeholder="OEM NAME"  name="oem" type="text">
+        </div>
+
+            <div class="col-xs-4">
+          <label for="oem_part_number">OEM Part Number</label>
+          <input class="form-control"  placeholder="OEM Part Number"  name="oem_part_number" type="text">
+        </div>
+    </div>
+
+<!--
+      <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="uniqueName">Uniqiue Name</label>
+        <input class="form-control" placeholder="Unique Id" name="uniqueName" type="text">
+      </div>
+         <div class="col-xs-4">
+        <label for="description">Description</label>
+        <input class="form-control" placeholder="Component" name="description" type="text">
+      </div>
+    </div>
+     <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="packageVersion">Package Version</label>
+        <input class="form-control"  placeholder="Package Version"  name="packageVersion" type="text">
+      </div>
+-->
+	<!--
+         <div class="col-xs-4">
+		<a href="allcomponents">allcomponents</a> -->
+        <!-- <label for="verifyApi">Verify</label> -->
+        <!-- <input class="form-control" placeholder="Verify api" name="verifyApi" type="text"> -->
+      <!--</div> -->
+<!--    
+      </div>
+        <div class="form-group row">
+        <div class="col-xs-8">
+        <label for="vendorString">Vendor</label>
+        <input class="form-control" placeholder="Vendor" name="vendorString" type="text">
+      </div>
+      </div>
+-->
+        <div class="form-group row">
+         <div class="col-xs-8">
+        <label for="platform">Platforms</label>
+             <select class="selectm" multiple= "multiple" name="platform" style="width:672px;" >
+        {% for plat in allPlatforms %}
+        <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+        {% endfor %}
+    </select>
+      </div>
+    </div>
+           <input type="submit" class="btn btn-default" value="Add Memory" />
+    <!--<p><LABEL for="exists">Exists:</LABEL><input type="checkbox" placeholder="Exists" name="exists" checked></input></p>-->
+</form>
+
+{% endblock %}
+
+
+
+
+

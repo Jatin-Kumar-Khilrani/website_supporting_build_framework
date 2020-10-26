@@ -1,0 +1,176 @@
+{% extends 'authenticate/base.html' %}
+{% block head %}
+    <style>
+    .panel {
+    border-color: #333;
+}
+    .panel > .panel-heading {
+    background-image: none;
+    background-color: #333;
+    color: white;}
+</style>
+<script>
+function approve_user(x) {
+    var user_name = $('#uname').text();
+    var status = x;
+    $.ajax({
+        url: '/authenticate/approve_user/',
+        type: 'post',
+        data: {
+            user_name: user_name,
+            status: status,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/authenticate/approve_user/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+function delete_user(usr) {
+
+    var user_name=usr;
+    $.ajax({
+        url: '/authenticate/delete_user/',
+        type: 'post',
+        data: {
+            user_name: user_name,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/authenticate/approve_user/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+function add_user() {
+
+confirm('Are you sure you want to add this user?');
+    var user_name = $('#user_name').val();
+    var f_name = $('#f_name').val();
+    var l_name =$('#l_name').val();
+    $.ajax({
+        url: '/authenticate/add_user/',
+        type: 'post',
+        data: {
+            user_name: user_name,
+            f_name: f_name,
+            l_name: l_name,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/authenticate/approve_user/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+
+}
+
+$('#addUser').on('hidden.bs.modal', function () {
+    $(this).find('form').trigger('reset');
+})
+</script>
+{% endblock %}
+{% block body_block %}
+    {% comment %}
+    <div class="well" style="width:90vw;">
+{{ msg |safe }}
+    </div>{% endcomment %}
+    <div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.8em !important;">User Setting</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/index" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+
+<hr>
+
+
+    <br>
+    <h4>Pending Approval</h4>
+    <table id="example" class="display component table table-striped text-center" cellspacing="0" width="100%">
+    <thead><tr>
+        <th class="text-center">Username</th>
+        <th class="text-center">Approve</th>
+        <th class="text-center">Reject</th>
+    </tr>
+    </thead>
+        <tbody>
+    {% for user in inactive_users %}
+    <tr>
+        <td><span id="uname">{{ user }}</span></td>
+        <td><button type ="submit" class="btn btn-success" onclick="approve_user(true)">Approve User</button></td>
+        <td><button type ="submit" class="btn btn-danger" onclick="approve_user(false)">Reject User</button></td>
+    </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+
+    <H4 style="float: left">User List</H4>
+    <div class="pull-right">
+    <a data-toggle="modal" data-target="#addUser" ><span class="glyphicon glyphicon-plus"></span> Add User</a>
+
+        <div id="addUser" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">User Information</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group" style="margin-bottom: 25px">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                    <input id="user_name" type="text" class="form-control" placeholder="Enter the CEC">
+                    </div>
+
+                    <div class="input-group" style="margin-bottom: 25px" >
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                    <input id="f_name" type="text" class="form-control" placeholder="Enter the first name">
+                    </div>
+
+
+                    <div class="input-group" style="margin-bottom: 25px" >
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                    <input id="l_name" type="text" class="form-control" placeholder="Enter the last name">
+                    </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="add_user()">Add user</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </div>
+    </div>
+
+     <table id="example"   class="display component table table-striped text-center" cellspacing="0" width="100%">
+    <thead><tr>
+        <th class="text-center">Username</th>
+        <th class="text-center">Status</th>
+        <th class="text-center">Delete User</th>
+    </tr>
+    </thead>
+        <tbody>
+    {% for usr in all_users %}
+    <tr>
+        <td><span id="uname">{{ usr }}</span></td>
+        {% if usr in inactive_users %}
+        <td>Not Approved</td>
+            {% else %}
+            <td>Approved</td>
+        {% endif %}
+        <td><button type ="submit" class="btn btn-danger" onclick="delete_user('{{usr}}')">Delete User</button></td>
+    </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}

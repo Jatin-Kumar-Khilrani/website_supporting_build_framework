@@ -1,0 +1,74 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+
+</style>
+    <script>
+
+    </script>
+{% endblock %}
+{% block body_block %}
+<div class="well" style="background: white;">
+	<div>
+		<form name="new_release" action="/workspace/add_release/add/" method="POST" role="form" >
+		<table class="table">{% csrf_token %}
+		    <tbody>
+		      <tr>
+		        <td>
+		        	<div class="form-group">
+					  <label for="usr">Release Name :</label>
+					  <input type="text" class="form-control" name="rel_name" >
+					</div>
+		        </td>
+		        <td>
+		        	<div class="form-group">
+					  <label for="usr">SVN Location :</label>
+					  <input type="text" class="form-control" name="svn_path">
+					</div>
+		        </td>
+		        <td>
+		        	<div class="form-group">
+					  <label for="usr">Added By :</label>
+					  <input type="text" class="form-control" name="uname" value = "{{ user.get_username }}" readonly="readonly">
+					</div>
+		        </td>
+		        <td>
+		        	<div class="form-group">
+					  <button type="submit" class="btn btn-primary">Add</button>
+					</div>
+		        </td>
+
+
+		      </tr>
+			<tr>
+				<td>
+					<label for="document">Upload the PCI-SIG id file here</label>
+					<input class="form-control" name="document" type="file" onchange="getname()">
+				</td>
+			</tr>
+		    </tbody>
+		  </table>
+		  </form>
+		  
+		  <table class="table">
+		    <thead>
+		      <tr>
+		        <th>Release</th>
+		        <th>SVN URL</th>
+		        <th>Added By</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		    {% for rel in release_list %}
+		      <tr>
+		        <td>{{rel.release}}</td>
+		        <td>{{rel.svn_url}}</td>
+		        <td>{{rel.added_by}}</td>
+		      </tr>
+		      {% endfor %}
+		    </tbody>
+		  </table>
+	</div>
+</div>
+
+{% endblock %}

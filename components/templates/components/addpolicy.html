@@ -1,0 +1,344 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+    textarea
+    {
+        width : 850px !important;
+        height: 100px !important;
+    }
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+    box-sizing: content-box !important;
+    display: inline-block;
+    min-width: 0em !important;
+    padding: 0em 0em !important;
+    margin-left: 0px !important;
+    outline: none !important;
+    }
+</style>
+  <script type="text/javascript">
+         $(document).ready(function(){
+
+          $(".selectm").select2({closeOnSelect: true, tags: true, placeholder:"Type the name"});
+
+          $(".selectyn").select2({closeOnSelect: true, tags: false, placeholder:"Type the name"});
+
+          $(".selectyn").change(function() {
+                if($(this).val()=="yes")
+            {
+                $('input[name="command"]').removeAttr("readonly");
+                        $('input[name="lock_payload"]').removeAttr("readonly");
+                        $('input[name="unlock_payload"]').removeAttr("readonly");
+                        $('input[name="secure_firmware_update_i2cslaveaddr"]').removeAttr("readonly");
+
+                $('input[name="command"]').val("");
+                        $('input[name="lock_payload"]').val("");
+                        $('input[name="unlock_payload"]').val("");
+                        $('input[name="secure_firmware_update_i2cslaveaddr"]').val("");
+            }
+            else if($(this).val()=="no")
+            {
+                $('input[name="command"]').val("NA");
+                        $('input[name="lock_payload"]').val("NA");
+                        $('input[name="unlock_payload"]').val("NA");
+                        $('input[name="secure_firmware_update_i2cslaveaddr"]').val("NA");
+
+                $('input[name="command"]').attr({ value:"NA", readonly:"true" });
+                        $('input[name="lock_payload"]').attr({ readonly:"true", value:"NA" });
+                        $('input[name="unlock_payload"]').attr({ readonly:"true", value:"NA" });
+                        $('input[name="secure_firmware_update_i2cslaveaddr"]').attr({ readonly:"true", value:"NA" });
+            }
+          });
+
+          });
+
+        function firmwareadd() {
+
+            var firmwareName=$('#firmwareName').val();
+            var platform = $('.selectm').val();
+            $.ajax({
+                url: '/components/listfirmware/add/',
+                type: 'post',
+                data: {
+                    firmwareName: firmwareName,
+                    platform: JSON.stringify(platform),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    alert(response.msg);
+                    window.location = '/components/listfirmware/'
+                },
+                error: function (xhr, status, error) {
+                    alert(xhr.responseText);
+                }
+            });
+        }
+
+        //return confirm('Are you sure you want to delete this?')
+        function firmwareedit(firmwareid) {
+
+            $.ajax({
+                url: '/components/listfirmware/edit/{{ firmwareid }}',
+                type: 'post',
+                data: {
+                    firmwares_association :JSON.stringify($('#tblAppendGrid').appendGrid('getAllValue')),
+
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    alert(response.msg);
+                    window.location = '/components/listfirmware/edit/{{ firmwareid }}'
+                },
+                error: function (xhr, status, error) {
+                    alert(xhr.responseText);
+                }
+            });
+        }
+        function firmwaredelete(firmwareid) {
+            $.ajax({
+                url: '/components/listfirmware/delete/',
+                type: 'post',
+                data: {
+                    firmwareid: firmwareid,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    alert(response.msg);
+                    window.location = '/components/listfirmware/'
+                },
+                error: function (xhr, status, error) {
+                    alert(xhr.responseText);
+                }
+            });
+        }
+
+
+            $(document).ready(function() {
+
+                      $(".selectmp").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+
+            $(function() {
+                $('#tblAppendGrid').appendGrid({
+                    caption: 'Policy Associations',
+                    captionfirmwaretip: {
+                        items: 'td',
+                        content: 'Policy Associations',
+                        show: {
+                            effect: 'fold',
+                            delay: 250
+                        }
+                    },
+                    columns: [
+                        //{ name: 'firmware', display: 'firmware', ctrlAttr: { maxlength: 10, readonly:true  }},
+                        { name: 'component', display: 'Component', type: 'select', ctrlOptions:{{ ctrlOptionsComp|safe}}},
+                        { name: 'platform', display: 'Platform', type: 'select' , ctrlOptions:{{ ctrlOptionsPlat|safe}}},
+                        { name: 'release', display: 'Release', type: 'select' , value: 'granite_peak', invisible: true, ctrlOptions:{{ ctrlOptionsRel|safe}}}
+                    ],
+
+            {#        customFooterButtons: [#}
+            {#            { uiButton: { icons: { primary: 'ui-icon-disk' }, label: 'Save' }, click: function (evt) { alert('Saved'); }, atTheFront: true },#}
+            {#            //{ uiButton: { icons: { primary: 'ui-icon-arrowthickstop-1-s' }, text: false }, btnAttr: { title: 'Download Data' }, click: function (evt) { alert('Download is in process...'); } }#}
+            {#        ],#}
+
+                    initData: {{initm|safe}},
+
+                    hideButtons: {
+                    //remove: true,
+                     insert: true,
+                     moveUp : true,
+                     moveDown : true,
+
+                }
+                });
+            });})
+
+    </script>
+{% endblock %}
+{% block body_block %}
+    <div class="row">
+     <div class="col-xs-5 block" style="font-size: 1.5em !important;">Add a New Policy</div>
+        {% comment %}style="float: left"{% endcomment %}
+     <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/index/{{request.session.ws_name}}/{{request.session.release}}" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+        </div>
+    </div>
+
+    <hr/>
+    <br/>
+
+    <div class="form-group row">
+        <div class="col-xs-2">
+            <label for="policy_name">Policy-Name:</label>
+            <input class="form-control"  placeholder="Policy-Name:"  name="policy_name" type="text">
+        </div>
+    </div>
+
+    <br/>
+
+    <div class="form-group row">
+     <div class="col-xs-4">
+          <label for="fanpolicy">Fanpolicy</label>
+          <select class="selectm"  name="fanpolicy" style="width:95%"><!--:672px;"-->
+           <option disabled selected value> -- Select a Fanpolicy -- </option>
+           <option value="low_power_policy">LOW_POWER_POLICY</option>
+           <option value="balanced_power_policy">BALANCED_POWER_POLICY</option>
+           <option value="high_power_policy">HIGH_POWER_POLICY</option>
+           <option value="max_power_policy">MAX_POWER_POLICY</option>
+          </select>
+     </div>
+         <div class="col-xs-4">
+            <label for="card_threshold_offset">Card Threshold Offset</label>
+            <input id=idcardthreshold class="form-control"  placeholder="Card Threshold Offset"  name="card_threshold_offset" type="text">
+         </div>
+    </div>
+
+    <div class="form-group row">
+     <div class="col-xs-4">
+       <label for="pmin">PMin</label>
+       <input class="form-control"  placeholder="PMin"  name="pmin" type="text">
+     </div>
+     <div class="col-xs-4">
+       <label for="pmax">Pmax</label>
+       <input class="form-control"  placeholder="Pmax"  name="pmax" type="text">
+     </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+              <label for="pid">PID</label>
+              <input class="form-control"  placeholder="PID"  name="pid" type="text">
+        </div>
+
+        <div class="col-xs-4">
+              <label for="vid">VID</label>
+              <input class="form-control"  placeholder="VID"  name="vid" type="text">
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+              <label for="sku">SKU</label>
+              <input class="form-control"  placeholder="SKU"  name="sku" type="text">
+        </div>
+        <div class="col-xs-4">
+              <label for="oem_part_number">OEM Part Number</label>
+              <input class="form-control"  placeholder="OEM Part Number"  name="oem_part_number" type="text">
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-xs-4">
+              <label for="peripheral_type">Peripheral Type</label>
+              <select class="selectm"  name="peripheral_type" style="width:95%"><!--:672px;"-->
+               <option disabled selected value> -- Select a Peripheral -- </option>
+           <option value="gpu">GPU</option>
+               <option value="vic">VIC</option>
+               <option value="fusionio">FUSIONIO</option>
+               <option value="nvme">NVME</option>
+               <option value="pcie">PCIE</option>
+               <option value="hercules">HERCULES</option>
+              </select>
+        </div>
+        <div class="col-xs-4">
+              <label for="no_of_temp_sensors">No. Of Temp Sensors</label>
+              <input class="form-control"  placeholder="No. of Temp Sensors"  name="no_of_temp_sensors" type="text">
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+              <label for="temp_sensor_i2cslaveaddr">Temp Sensor I2cSlaveAddr</label>
+              <input class="form-control"  placeholder="temp_senosr_I2cSlaveAddr"  name="temp_sensor_i2cslaveaddr" type="text">
+        </div>
+<!--
+	<div class="col-xs-4">
+          <label for="fanpolicy">Fanpolicy</label>
+          <select class="selectperipheral"  name="fanpolicy" style="width:95%">
+           <option disabled selected value> -- Select a Fanpolicy -- </option>
+           <option value="gpu">LOW_POWER_POLICY</option>
+           <option value="vic">BALANCED_POWER_POLICY</option>
+           <option value="fusionio">HIGH_POWER_POLICY</option>
+           <option value="nvme">MAX_POWER_POLICY</option>
+          </select>
+	</div>
+-->
+    </div>
+
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="secure_firmware_support">Secure Firmware Support</label>
+          <select class="selectyn"  name="secure_firmware_support" style="width:95%"><!--:672px;"-->
+              <option disabled selected value> -- Select your choice -- </option>
+              <option value="yes">YES</option>
+              <option value="no">NO</option>
+	  </select>
+	</div>
+    </div>
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="secure_firmware_update_i2cslaveaddr">Secure Firmware Update I2cSlaveAddr</label>
+          <input class="form-control"  placeholder="Secure Firmware update I2cSlaveAddr" readonly="true" name="secure_firmware_update_i2cslaveaddr" type="text">
+	</div>
+
+	<div class="col-xs-4">
+          <label for="command">Command</label>
+          <input class="form-control"  placeholder="Command"  readonly="true" name="command" type="text">
+	</div>
+    </div>
+
+    <div class="form-group row">
+	<div class="col-xs-4">
+          <label for="lock_payload">Lock Payload</label>
+          <input class="form-control"  placeholder="Lock payload"  readonly="true" name="lock_payload" type="text">
+	</div>
+
+	<div class="col-xs-4">
+          <label for="unlock_payload">Unlock Payload</label>
+          <input class="form-control"  placeholder="Unlock payload"  readonly="true" name="unlock_payload" type="text">
+	</div>
+    </div>
+
+    <div class="form-group row">
+
+	<div class="col-xs-4">
+          <label for="fru_major_type">Fru Major Type</label>
+          <input class="form-control"  placeholder="Fru Major Type"  name="fru_major_type" type="text">
+	</div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+              <label for="fru_minor_type">Fru Minor Type</label>
+              <input class="form-control"  placeholder="Fru Minor Type"  name="fru_minor_type" type="text">
+        </div>
+        <div class="col-xs-4">
+              <label for="pci_attribute">PCI Attribute</label>
+              <select class="selectm"  name="pci_attribute" style="width:95%"><!--:672px;"-->
+               <option disabled selected value> -- Select your choice -- </option>
+               <option value="ADAPTER_ATTRIBUTE_NIL">ADAPTER_ATTRIBUTE_NIL</option>
+               <option value="OPROM_MUST_BE_EXECUTED">OPROM_MUST_BE_EXECUTED</option>
+               <option value="OPROM_MUTUAL_EXCLUSIVE">OPROM_MUTUAL_EXCLUSIVE</option>
+               <option value="OPROM_FORCE_DISABLE_UEFI">OPROM_FORCE_DISABLE_UEFI</option>
+               <option value="OPROM_FORCE_DISABLE_LEGACY">OPROM_FORCE_DISABLE_LEGACY</option>
+               <option value="OPROM_FORCE_ENABLE_UEFI">OPROM_FORCE_ENABLE_UEFI</option>
+               <option value="OPROM_FORCE_ENABLE_LEGACY">OPROM_FORCE_ENABLE_LEGACY</option>
+               <option value="FORCE_DISABLE_ACS">FORCE_DISABLE_ACS</option>
+               <option value="ALLOCATE_MMIO_ABOVE_4GB">ALLOCATE_MMIO_ABOVE_4GB</option>
+               <option value="ADAPTER_SKIP_BIOS_ENUMERATION">ADAPTER_SKIP_BIOS_ENUMERATION</option>
+          </select>
+        </div>
+    </div>
+
+    <table id="tblAppendGrid"></table>
+    <br/>
+    <button type="button" class="btn btn-default" onclick="firmwareedit({{ firmwareid }})">Save</button>
+
+{% endblock %}
+
+
+
+
+

@@ -1,0 +1,170 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<style>
+textarea
+{
+    width : 850px !important;
+    height: 100px !important;
+}
+tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    box-sizing: content-box !important;
+    display: inline-block;
+    min-width: 0em !important;
+    padding: 0em 0em !important;
+    margin-left: 0px !important;
+    outline: none !important;
+}
+</style>
+    <script>
+    {% comment %}function firmwareadd() {
+
+    var firmwareName=$('#firmwareName').val();
+    var platform = $('.selectm').val();
+    $.ajax({
+        url: '/components/listfirmware/add/',
+        type: 'post',
+        data: {
+            firmwareName: firmwareName,
+            platform: JSON.stringify(platform),
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listfirmware/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}{% endcomment %}
+//return confirm('Are you sure you want to delete this?')
+function firmwareedit(firmwareid) {
+
+    var firmwareName=$('#editfirmwareName').val();
+    var platform = $('.selectmp').val();
+    $.ajax({
+        url: '/components/listfirmware/edit/',
+        type: 'post',
+        data: {
+            firmwareid: firmwareid,
+            firmwareName: firmwareName,
+            platform: JSON.stringify(platform),
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listfirmware/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+function firmwaredelete(firmwareid) {
+    $.ajax({
+        url: '/components/listfirmware/delete/',
+        type: 'post',
+        data: {
+            firmwareid: firmwareid,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function (response) {
+            alert(response.msg);
+            window.location = '/components/listfirmware/'
+        },
+        error: function (xhr, status, error) {
+            alert(xhr.responseText);
+        }
+    });
+}
+
+
+$(document).ready(function() {
+
+          $(".selectm").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+          $(".selectmp").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+
+    // Setup - add a text input to each footer cell
+    $('.exam').each( function () {
+        var title = $(this).text();
+        $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+    } );
+
+    // DataTable
+    var table = $('#example').DataTable();
+
+    // Apply the search
+    table.columns().every( function () {
+        var that = this;
+
+        $( 'input', this.footer() ).on( 'keyup change', function () {
+            if ( that.search() !== this.value ) {
+                that
+                    .search( this.value )
+                    .draw();
+            }
+        } );
+    } );
+$('#firmwareadd').on('hidden.bs.modal', function () {
+    $(this).find('form').trigger('reset');
+    });
+
+$('#editfirmwareModal').on('hidden.bs.modal', function () {
+    $(this).find('form').trigger('reset');});
+});
+
+
+    </script>
+{% endblock %}
+{% block body_block %}
+<div class="row">
+	 <div class="col-xs-5 block" style="font-size: 1.5em !important;">Firmware List</div>
+	    {% comment %}style="float: left"{% endcomment %}
+	    <div class="col-xs-5 col-xs-push-2 block" >
+		    <a style="float: right; clear: both;" href="/components/index/{{request.session.ws_name}}/{{request.session.release}}" >
+		    <span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+		    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/components/addfirmware/"><span class="glyphicon glyphicon-plus"></span> Add Firmware</a>
+		</div>
+</div>
+<hr>
+<!-- <div class="pull-right">
+	<a href="/components/addfirmware/"><span class="glyphicon glyphicon-plus"></span> Add firmware</a>
+</div> -->
+
+<table id="example" class="display component table table-striped" cellspacing="0" width="100%">
+<!--<table class="table table-hover  results table-striped component">
+    -->
+    <thead><tr>
+        <th>Firmwares</th>
+        <th>Edit Firmware</th>
+        <th>Edit Firmware Association</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+      <tfoot><tr>
+        <th class="exam">firmwares</th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
+    </tfoot>
+        <tbody>
+        {%  for firmware in allFirmwares %}
+            <tr>
+                <td>{{ firmware.firmwareName }}</td>
+        		<td><a href="/components/addfirmware/{{ firmware.id }}"><span class="glyphicon glyphicon-pencil"></span>Edit</a></td>
+        		<td><a href="/components/listfirmware/edit/{{ firmware.id }}"><span class="glyphicon glyphicon-pencil"></span>Edit</a></td>
+                <td><a href="/components/listfirmware/delete/{{ firmware.id }}" onclick="return confirm('Are you sure you want to delete this?')"><span class="glyphicon glyphicon-trash"></span> Delete</a></td>
+            </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+
+
+{% endblock %}

@@ -1,0 +1,389 @@
+{% extends 'components/base.html' %}
+{% block head %}
+  <script type="text/javascript">
+        var lastrow;
+        function addswitch_info() {
+           alert("in addswitch_info function");
+           $.ajax({
+                url: '/components/addswitch_info/',
+                type: 'post',
+                data: {
+                    switch_info :JSON.stringify($('#tblAppendGrid').appendGrid('getAllValue')), //tblAppendGrid
+                    lastrow : lastrow,
+                    //firmwareName: firmwareName,
+                    //platform: JSON.stringify(platform),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    alert(response.msg);
+                    //window.location = '/components/listfirmware/'
+                },
+                error: function (xhr, status, error) {
+                    alert(xhr.responseText);
+                }
+            });
+            return true;
+        }
+
+        function addcontroler_info() {
+           alert("in addcontroler_info function");
+           $.ajax({
+                url: '/components/addcontroler_info/',
+                type: 'post',
+                data: {
+                    ctrl_info :JSON.stringify($('#tblAppendGrid_ctrl').appendGrid('getAllValue')),
+                    //firmwareName: firmwareName,
+                    //platform: JSON.stringify(platform),
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    alert(response.msg);
+                    //window.location = '/components/listfirmware/'
+                },
+                error: function (xhr, status, error) {
+                    alert(xhr.responseText);
+                }
+            });
+            return true;
+        }
+
+        $(document).ready(function(){
+
+          $(".select").select2({closeOnSelect: true, tags: true});
+
+          $(".selectm").select2({closeOnSelect: false, tags: true, placeholder:"Type the name of the platform"});
+
+          $("#id_slot_map_strategy option[value={{ nvme.slot_map_strategy }}]").attr('selected','selected');
+
+          $(function() {
+                    $('#tblAppendGrid').appendGrid({
+                        caption: 'Switch Info',
+                        initRows: 1,
+                        captionfirmwaretip: {
+                        items: 'td',
+                        content: 'Switch Info',
+                        show: {
+                            effect: 'fold',
+                            delay: 250
+                        }
+                        },
+
+                        columns: [
+                        //{ name: 'platform', display: 'Platform    ', type: 'select' , ctrlOptions:{{ ctrlOptionsPlat|safe}}},
+                        { name: 'pci_slot_name', display: 'Pci_slot_name  ', type: 'text', ctrlAttr: { maxlength: 20 }},
+                        { name: 'switch_i2c_channel', display: 'Switch_i2c_channel  ', type: 'text', ctrlAttr: { maxlength: 20 }},
+                        { name: 'switch_i2c_dev_address', display: 'Switch_i2c_dev_address  ',type: 'text', ctrlAttr: { maxlength: 20 }},
+                        ],
+
+                        {#        customFooterButtons: [#}
+                        {#            { uiButton: { icons: { primary: 'ui-icon-disk' }, label: 'Save' }, click: function (evt) { alert('Saved'); }, atTheFront: true },#}
+                        {#            //{ uiButton: { icons: { primary: 'ui-icon-arrowthickstop-1-s' }, text: false }, btnAttr: { title: 'Download Data' }, click: function (evt) { alert('Download is in process...'); } }#}
+                        {#        ],#}
+
+                        initData: {{initm|safe}},
+
+                        useSubPanel: true,
+                        subPanelBuilder: function (cell, uniqueIndex) {
+                            // Create a table object and add to sub panel
+                            var subgrid = $('<table></table>').attr('id', 'tblSubGrid_' + uniqueIndex).appendTo(cell);
+                            // Optional. Add a class which is the CSS scope specified when you download jQuery UI
+                            subgrid.addClass('alternate');
+
+                            lastrow = uniqueIndex;
+
+                            // Initial the sub grid
+                            subgrid.appendGrid({
+                                initRows: 1,
+                                caption: 'Port Info',
+                                hideRowNumColumn: true,
+                                columns: [
+                                    { name: 'drive_name', display: 'Drive Name  ', type: 'text', ctrlAttr: { maxlength: 20 }},
+                                    { name: 'usp_port_num', display: 'Usp Port Num', type: 'text', ctrlAttr: { maxlength: 20 }},
+                                    { name: 'dsp_port_num', display: 'Dsp Port Num', type: 'text', ctrlAttr: { maxlength: 20 }},
+                                    { name: 'usp_pcie_fn_num', display: 'Usp Pcie fn Num', type: 'text', ctrlAttr: { maxlength: 20 }},
+                                    { name: 'dsp_pcie_fn_num', display: 'Dsp Pcie fn Num', type: 'text', ctrlAttr: { maxlength: 20 }},
+                                    { name: 'nvme_index', display: 'Nvme Index', type: 'text', ctrlAttr: { maxlength: 20 }},
+                                ],
+                                hideButtons: {
+                                    //remove: true,
+                                    insert: true,
+                                    moveUp : true,
+                                    moveDown : true,
+                                }
+                            });
+                        },
+
+                        subPanelGetter: function (uniqueIndex) {
+                            // Return the sub grid value inside sub panel for `getAllValue` and `getRowValue` methods
+                            lastrow = uniqueIndex;
+                            return $('#tblSubGrid_' + uniqueIndex).appendGrid('getAllValue', true);
+                        },
+
+                        rowDataLoaded: function (caller, record, rowIndex, uniqueIndex) {
+                            // Check SubGridData exist in the record data
+                            if (record.SubGridData) {
+                                // Fill the sub grid
+                                $('#tblSubGrid_' + uniqueIndex, caller).appendGrid('load', record.SubGridData);
+                            }
+                        },
+
+
+
+
+
+                        hideButtons: {
+                        //remove: true,
+                        insert: true,
+                        moveUp : true,
+                        moveDown : true,
+                        }
+                    });
+            });
+
+            $(function() {
+                    $('#tblAppendGrid_ctrl').appendGrid({
+                        caption: 'Ctrl Info',
+                        initRows: 1,
+                        captionfirmwaretip: {
+                        items: 'td',
+                        content: 'Ctrl Info',
+                        show: {
+                            effect: 'fold',
+                            delay: 250
+                        }
+                        },
+
+                        columns: [
+                        //{ name: 'platform', display: 'Platform    ', type: 'select' , ctrlOptions:{{ ctrlOptionsPlat|safe}}},
+                        { name: 'pci_slot_name', display: 'Pci_slot_name  ', type: 'text', ctrlAttr: { maxlength: 20 }},
+                        { name: 'i2c_channel', display: 'i2c_channel  ', type: 'text', ctrlAttr: { maxlength: 20 }},
+                        { name: 'i2c_dev_address', display: 'i2c_dev_address  ', type: 'select' , ctrlOptions:{ 0: '{Choose}', 00: 'PROBE_I2C_ADDR_FILL', D4: 'NVME_MAIN_I2C_ADDR', A6: 'NVME_AUX_I2C_ADDR', FF: 'STOP_PROBE_I2C_ADDR'}},
+                        { name: 'id', display: 'id  ', type: 'text', ctrlAttr: { maxlength: 20 }},
+                        { name: 'vendor', display: 'vendor   ', type: 'select' , ctrlOptions:['VENDOR_RUNTIME_FILL','VENDOR_GENERIC_NVME','VENDOR_NONE','VENDOR_SWRAID','VENDOR_COUNT']},
+                        { name: 'nvme_type', display: 'nvme_type  ', type: 'select' , ctrlOptions:['NVME_HHHL','NVME_SFF','NVME_M2','NVME_MSWITCH']},
+                        { name: 'nvme_parent_type', display: 'nvme_parent_type  ', type: 'select' , ctrlOptions:['NA','NVME_DIRECT_U2','NVME_DIRECT_HHHL','PCIE_SWITCH','PCIE_SWITCH_1','PCIE_SWITCH_2','PCIE_SWITCH_3','PCIE_SWITCH_REAR']},
+                        ],
+
+                        {#        customFooterButtons: [#}
+                        {#            { uiButton: { icons: { primary: 'ui-icon-disk' }, label: 'Save' }, click: function (evt) { alert('Saved'); }, atTheFront: true },#}
+                        {#            //{ uiButton: { icons: { primary: 'ui-icon-arrowthickstop-1-s' }, text: false }, btnAttr: { title: 'Download Data' }, click: function (evt) { alert('Download is in process...'); } }#}
+                        {#        ],#}
+
+                        initData: {{initc|safe}},
+
+
+
+                        hideButtons: {
+                        //remove: true,
+                        insert: true,
+                        moveUp : true,
+                        moveDown : true,
+                        }
+                    });
+            });
+
+
+
+          $('#addComponent').bootstrapValidator({
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    match: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The match is required'
+                            }
+                        }
+                    },
+                    init: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The init is required'
+                            },
+                        }
+                    },
+                    max_drives: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The max_drives is required'
+                            },
+                        }
+                    },
+                    slot_map_strategy: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The slot_map_strategy is required'
+                            },
+                        }
+                    },
+                    platform: {
+                        row: '.col-xs-8',
+                        validators: {
+                            notEmpty: {
+                                message: 'The platform is required'
+                            },
+                        }
+                    }
+                }
+            });
+
+        });
+
+
+    </script>
+{% endblock %}
+{% block body_block %}
+<div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Modify Nvme Component</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/nvmeindex/" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+<hr>
+
+<!--
+<div style=" clear: right; float: right; ">
+<select class="select" style="width:200px;" >
+    <option disabled selected value> -- Select a Template -- </option>
+        {% for component in allComponents %}
+        <option value="{{ component.uniqueName }}|{{ component.description }}|{{ component.packageVersion }}|{%  for l in component.platform.all %}{{l.platformName}},{% endfor %}|{{ component.vendorString }}|{{ component.verifyApi }}">{{ component.description }}</option>
+        {% endfor %}
+    </select>
+</div>
+-->
+
+
+    <form id="addComponent" action="/components/modifynvme/{{ nvme.pk }}/" onsubmit="return !!( addcontroler_info()
+                      & addswitch_info() );" method="post">
+    {% csrf_token %}
+    <!--<div class="form-group row" style="width:95%;">
+      <div class="col-xs-2">
+        <label for="vendorId">Vendor Id</label>
+        <input class="form-control" placeholder="Vendor Id" name="vendorId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="deviceId">Device Id</label>
+        <input class="form-control" placeholder="Device Id" name="deviceId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="subVendorId">Sub Vendor Id</label>
+        <input class="form-control" placeholder="Sub Vendor Id" name="subVendorId" type="text">
+      </div>
+         <div class="col-xs-2">
+        <label for="subDeviceId">Sub Device Id</label>
+        <input class="form-control" placeholder="Sub Device Id" name="subDeviceId" type="text">
+      </div>
+    </div> -->
+
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="match">Match</label>
+          <input class="form-control"  value="{{nvme.match}}"  name="match" type="text">
+        </div>
+
+        <div class="col-xs-4">
+          <label for="init">Init</label>
+          <input class="form-control"  value="{{nvme.init}}"  name="init" type="text">
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-xs-4">
+          <label for="max_drives">Max Drives</label>
+          <input class="form-control"  value="{{nvme.max_drives}}"  name="max_drives" type="text">
+        </div>
+
+        <div class="col-xs-4">
+          <label for="slot_map_strategy">Slot Map Strategy</label>
+          <select class="select" id="id_slot_map_strategy" name="slot_map_strategy" style="width:95%"><!--:672px;"-->
+           <option value="SMS_IDENTITY">SMS_IDENTITY</option>
+           <option value="SMS_SIMPLE">SMS_SIMPLE</option>
+           <option value="SMS_LIKE_SANMATEO">SMS_LIKE_SANMATEO</option>
+           <option value="SMS_ADAPTIVE_ZERO">SMS_ADAPTIVE_ZERO</option>
+           <option value="SMS_ADAPTIVE_ONE">SMS_ADAPTIVE_ONE</option>
+          </select>
+        </div>
+    </div>
+
+
+
+<!--
+      <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="uniqueName">Uniqiue Name</label>
+        <input class="form-control" placeholder="Unique Id" name="uniqueName" type="text">
+      </div>
+         <div class="col-xs-4">
+        <label for="description">Description</label>
+        <input class="form-control" placeholder="Component" name="description" type="text">
+      </div>
+    </div>
+     <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="packageVersion">Package Version</label>
+        <input class="form-control"  placeholder="Package Version"  name="packageVersion" type="text">
+      </div>
+-->
+	<!--
+         <div class="col-xs-4">
+		<a href="allcomponents">allcomponents</a> -->
+        <!-- <label for="verifyApi">Verify</label> -->
+        <!-- <input class="form-control" placeholder="Verify api" name="verifyApi" type="text"> -->
+      <!--</div> -->
+<!--    
+      </div>
+        <div class="form-group row">
+        <div class="col-xs-8">
+        <label for="vendorString">Vendor</label>
+        <input class="form-control" placeholder="Vendor" name="vendorString" type="text">
+      </div>
+      </div>
+-->
+        <!--<div class="form-group row">-->
+         <!--<div class="col-xs-8">-->
+            <!--<label for="platform">Platforms</label>-->
+            <!--<select class="selectm" multiple= "multiple" name="platform" style="width:672px;" >-->
+                <!--{% for plat in allPlatforms %}-->
+                <!--<option value="{{plat.platformName}}">{{ plat.platformName }}</option>-->
+                <!--{% endfor %}-->
+            <!--</select>-->
+         <!--</div>-->
+        <!--</div>-->
+        <table id="tblAppendGrid"></table>
+        <br/>
+        <br/>
+        <table id="tblAppendGrid_ctrl"></table>
+        <br/>
+
+        <div class="form-group row">
+         <div class="col-xs-8">
+            <label for="platform">Platforms</label>
+             <select class="selectm" multiple= "multiple" name="platform" style="width:672px;" >
+                 {% for plat in allPlatforms %}
+                    {%  if plat in nvme.platform.all %}
+                        <option value="{{plat.platformName}}" selected="true">{{ plat.platformName }}</option>
+                    {% else %}
+                        <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+                    {% endif %}
+                {% endfor %}
+             </select>
+        </div>
+    </div>
+         <input type="submit" class="btn btn-default" value="Modify Nvme" />
+    <!--<p><LABEL for="exists">Exists:</LABEL><input type="checkbox" placeholder="Exists" name="exists" checked></input></p>-->
+</form>
+
+{% endblock %}
+
+
+
+
+

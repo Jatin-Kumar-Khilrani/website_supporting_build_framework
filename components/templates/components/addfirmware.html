@@ -1,0 +1,99 @@
+{% extends 'components/base.html' %}
+{% block head %}
+<script type="text/javascript">
+function getname() {
+    var firmwarename = $('input[type=file]').val().split('\\').pop();
+    $('input[name="firmwareName"]').val(firmwarename);
+}
+
+$(document).ready(function() {
+    $(".select").select2();
+    $('#addfirmware').bootstrapValidator({
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+           
+            document: {
+                validators: {
+                    notEmpty: {
+                        message: 'This field is required'
+                    },
+                }
+            },
+            firmwareName: {
+                validators: {
+                    notEmpty: {
+                        message: 'This field is required'
+                    },
+                }
+            },
+            upload_path: {
+                validators: {
+                    notEmpty: {
+                        message: 'This field is required'
+                    },
+                }
+            },
+            destination: {
+                    validators: {
+                    notEmpty: {
+                        message: 'This field is required'
+                    },
+            }
+            }
+        }
+    });
+});
+    </script>
+{% endblock %}
+{% block body_block %} 
+<div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Add/Edit Firmware</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/index/{{request.session.ws_name}}/{{request.session.release}}" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+</div>
+</div>
+<hr>
+<form action="/components/addfirmware/{{firmware.pk}}" method="post" enctype="multipart/form-data" id="addfirmware">
+{% csrf_token %}
+    <div class="form-group row">
+        <div class="col-xs-6">
+            <label for="document">Upload the firmware here</label>
+            <input class="form-control" name="document" type="file" onchange="getname()" >
+        </div>
+        <div class="col-xs-6">
+            <label for="firmwareName">Firmware Name</label>
+            <input class="form-control" placeholder="firmware name" name="firmwareName" type="text" value="{{firmware.firmwareName}}">
+        </div>
+    </div>
+    <div class="form-group row">
+          <!-- <div class="col-xs-6">
+            <label for="category">Select the Category of firmware</label>
+            <select class="select form-control" name="category" >
+                {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+         </div> -->
+         <div class="col-xs-6">
+            <label for="destination">Install file path in Image</label>
+            <input class="form-control" placeholder="" name="upload_path" type="text" value="{{firmware.location}}">
+        </div>
+        <div class="col-xs-6">
+            <label for="toolName">Directory Path to Upload in host machine</label>
+            <input class="form-control" placeholder="" name="destination" type="text" value="{{firmware.softLocation}}">
+        </div>
+    </div>
+<input type="submit" class="btn btn-default" value="Add Firmware" />
+<a href="/components/firmwarelist/" class="btn btn-default">Cancel</a>
+</form>
+
+{% endblock %}
+
+
+
+
+

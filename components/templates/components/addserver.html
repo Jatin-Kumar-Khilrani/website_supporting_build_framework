@@ -1,0 +1,133 @@
+{% extends 'components/base.html' %}
+{% block head %}
+
+ <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            $(".select").select2();
+
+            $(".selectm").select2({closeOnSelect: true, tags: true, placeholder:"Type the name of the platform"});
+
+            $(".select").change(function() {
+                var a = $(".select").val();
+                var b = a.split("|");
+                $('input[name="uniqueName"]').val(b[0]);
+                $('input[name="description"]').val(b[1]);
+                $('input[name="packageVersion"]').val(b[2]);
+            var k = b[3].split(",");
+                //alert(k);
+                $(".selectm").val(k).trigger("change");
+                $('input[name="vendorString"]').val(b[4]);
+                <!-- $('input[name="verifyApi"]').val(b[5]); -->
+            });
+
+            $('#addComponent').bootstrapValidator({
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    uniqueName: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Brand String is required'
+                            }
+                        }
+                    },
+                    packageVersion: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The Package Version is required'
+                            }
+                        }
+                    },
+                    description: {
+                        row: '.col-xs-4',
+                        validators: {
+                            notEmpty: {
+                                message: 'The description is required'
+                            }
+
+                        }
+                    },
+                    platform: {
+                        row: '.col-xs-8',
+                        validators: {
+                            notEmpty: {
+                                message: 'The platform is required'
+                            },
+                        }
+                    },
+
+                }
+            });
+
+        });
+ </script>
+{% endblock %}
+{% block body_block %}
+ 
+<div class="row">
+ <div class="col-xs-5 block" style="font-size: 1.5em !important;">Add a New Server</div>
+    {% comment %}style="float: left"{% endcomment %}
+    <div class="col-xs-5 col-xs-push-2 block" ><a style="float: right; clear: both;" href="/components/serverindex/" ><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+
+    </div>
+</div>
+<hr>
+
+
+<!-- <p1> This is the right place to edit </p1> -->
+    <form id="addComponent" action="/components/addserver/" method="post">
+    {% csrf_token %}
+
+    <div class="form-group row" style="width:95%;">
+      <div class="from-group row" id="inputArea" style="width:95%;"></div>
+	<!--<p2>here we will see the effect</p2> -->
+    </div>
+      <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="uniqueName">Brand String</label>
+        <input class="form-control" placeholder="Brand String" name="uniqueName" type="text">
+      </div>
+         <div class="col-xs-4">
+        <label for="description">Description</label>
+        <input class="form-control" placeholder="Component" name="description" type="text">
+      </div>
+    </div>
+     <div class="form-group row">
+      <div class="col-xs-4">
+        <label for="packageVersion">Package Version</label>
+        <input class="form-control"  placeholder="Package Version"  name="packageVersion" type="text">
+      </div>
+    </div>
+
+        <br/>
+
+    <div class="form-group row">
+         <div class="col-xs-8">
+        <label for="platform">Platforms</label>
+             <select class="selectm" multiple= "multiple" name="platform" style="width:672px;" >
+        {% for plat in allPlatforms %}
+        <option value="{{plat.platformName}}">{{ plat.platformName }}</option>
+        {% endfor %}
+    </select>
+      </div>
+    </div>
+
+    <!--<table id="tblAppendGrid"></table> -->
+    <br/>
+        <input type="submit" class="btn btn-default" value="Add Server"/>
+    <!--<p><LABEL for="exists">Exists:</LABEL><input type="checkbox" placeholder="Exists" name="exists" checked></input></p> onclick="addpolicy()" -->
+</form>
+
+{% endblock %}
+
+
+
+
+
